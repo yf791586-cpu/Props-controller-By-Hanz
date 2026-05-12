@@ -736,7 +736,7 @@ if WingsEnabled then
 	offset = Vector3.new(
 		x,
 		-1,
-		z 3
+		z +3
 	)
 
 	rotation = CFrame.new()
