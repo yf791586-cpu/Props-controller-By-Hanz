@@ -704,6 +704,13 @@ end
 
 if WingsEnabled then
 
+	local torso =
+		character:FindFirstChild("UpperTorso")
+		or character:FindFirstChild("Torso")
+
+	local bodyCF =
+		torso and torso.CFrame or hrp.CFrame
+
 	local spacing = 1
 
 	local center =
@@ -712,16 +719,11 @@ if WingsEnabled then
 	local side =
 		i - center
 
-	---------------------------------------------------
-	-- TELEPORT STEP
-	---------------------------------------------------
-
 	local stepDelay = 0.3
 
 	local currentStep =
 		math.floor(tick() / stepDelay)
 
-	-- buka tutup sayap per step
 	local flap =
 		math.sin(currentStep * 0.8)
 
@@ -735,12 +737,33 @@ if WingsEnabled then
 
 	offset = Vector3.new(
 		x,
-		-1,
-		z +3
+		0,
+		z - 2
 	)
 
-	rotation = CFrame.new()
+	local worldPos =
+		bodyCF.Position
+		+ bodyCF:VectorToWorldSpace(offset)
 
+	local tilt = 0
+
+if i == 1 then
+	tilt = math.rad(35)
+
+elseif i == count then
+	tilt = math.rad(-35)
+end
+
+local cf =
+	CFrame.new(worldPos)
+	* bodyCF.Rotation
+	* CFrame.Angles(0, tilt, 0)
+
+	pcall(function()
+		data.Remote:InvokeServer(cf)
+	end)
+
+	continue
 			end
 
 ---
