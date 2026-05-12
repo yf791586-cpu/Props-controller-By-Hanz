@@ -704,71 +704,44 @@ end
 
 if WingsEnabled then
 
-local spacing = 3
+	local spacing = 3
 
-local center = (count + 1) / 2
+	local center =
+		(count + 1) / 2
 
-local side = i - center
+	local side =
+		i - center
 
-local open =
-math.abs(math.sin(time * 1))
+	---------------------------------------------------
+	-- TELEPORT STEP
+	---------------------------------------------------
 
-local x = side * spacing
+	local stepDelay = 0.3
 
-local z =
-math.abs(side)
-* open
-* -2.8
+	local currentStep =
+		math.floor(tick() / stepDelay)
 
-offset = Vector3.new(
-x,
--1,
--z
-)
+	-- buka tutup sayap per step
+	local flap =
+		math.sin(currentStep * 0.8)
 
-rotation = CFrame.new()
+	local x =
+		side * spacing
 
-end
+	local z =
+		math.abs(side)
+		* flap
+		* -3
 
+	offset = Vector3.new(
+		x,
+		-1,
+		z
+	)
 
----
+	rotation = CFrame.new()
 
--- TAIL    
----------------------------------------------------    
-
-if TailEnabled then
-
-local segment = i
-
-local delay = segment * 0.35
-
--- semakin belakang semakin fleksibel
-local strength =
-segment / count
-
-local wave =
-math.sin((time * 4) - delay)
-
-local sideWave =
-math.cos((time * 2) - delay)
-* 2
-* strength
-
-offset = Vector3.new(
-sideWave,
--2,
-(segment * 1.5) + 2
-)
-
-rotation =
-CFrame.Angles(
-0,
-math.rad(sideWave * 10),
-math.rad(wave * 5 * strength)
-)
-
-end
-
+			end
 
 ---
 
