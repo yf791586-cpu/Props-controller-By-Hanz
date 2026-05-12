@@ -737,8 +737,8 @@ if WingsEnabled then
 
 	offset = Vector3.new(
 		x,
-		0,
-		z + 2.5
+		-1.85,
+		z + 2.3
 	)
 
 	local worldPos =
