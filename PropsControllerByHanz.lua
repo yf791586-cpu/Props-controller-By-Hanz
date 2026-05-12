@@ -704,7 +704,7 @@ end
 
 if WingsEnabled then
 
-	local spacing = 3
+	local spacing = 1
 
 	local center =
 		(count + 1) / 2
