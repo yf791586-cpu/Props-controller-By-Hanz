@@ -675,10 +675,10 @@ if OrbitEnabled then
 	local radius = 8
 
 	-- tiap 0.3 detik pindah posisi
-	local stepDelay = 0.3
+	local stepDelay = 0.2
 
 	-- besar putaran tiap teleport
-	local stepRotation = math.rad(15)
+	local stepRotation = math.rad(5)
 
 	-- hitung step
 	local currentStep =
@@ -711,7 +711,7 @@ if WingsEnabled then
 	local bodyCF =
 		torso and torso.CFrame or hrp.CFrame
 
-	local spacing = 5
+	local spacing = 3.5
 
 	local center =
 		(count + 1) / 2
@@ -719,7 +719,7 @@ if WingsEnabled then
 	local side =
 		i - center
 
-	local stepDelay = 0.01
+	local stepDelay = 0.5
 
 	local currentStep =
 		math.floor(tick() / stepDelay)
