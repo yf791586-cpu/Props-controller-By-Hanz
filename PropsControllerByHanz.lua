@@ -711,7 +711,7 @@ if WingsEnabled then
 	local bodyCF =
 		torso and torso.CFrame or hrp.CFrame
 
-	local spacing = 1
+	local spacing = 5
 
 	local center =
 		(count + 1) / 2
@@ -719,7 +719,7 @@ if WingsEnabled then
 	local side =
 		i - center
 
-	local stepDelay = 0.3
+	local stepDelay = 0.01
 
 	local currentStep =
 		math.floor(tick() / stepDelay)
