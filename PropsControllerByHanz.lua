@@ -731,7 +731,7 @@ if WingsEnabled then
 	local z =
 		math.abs(side)
 		* flap
-		* -3
+		* -1
 
 	offset = Vector3.new(
 		x,
