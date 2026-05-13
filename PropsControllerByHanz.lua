@@ -711,7 +711,7 @@ if WingsEnabled then
 	local bodyCF =
 		torso and torso.CFrame or hrp.CFrame
 
-	local spacing = 3.5
+	local spacing = 2
 
 	local center =
 		(count + 1) / 2
