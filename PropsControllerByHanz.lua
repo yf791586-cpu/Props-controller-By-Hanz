@@ -672,18 +672,30 @@ local rotation = CFrame.new()
 
 if OrbitEnabled then
 
-	local radius = 20
+	-- radius min & max
+	local minRadius = 14
+	local maxRadius = 30
 
-	-- tiap 0.3 detik pindah posisi
-	local stepDelay = 0.2
+	-- kecepatan gelombang radius
+	local waveSpeed = 1.5
 
-	-- besar putaran tiap teleport
-	local stepRotation = math.rad(5)
+	-- sistem teleport (step)
+	local stepDelay = 0.05
+	local stepRotation = math.rad(0.5)
 
-	-- hitung step
+	-- hitung step (biar lompat per tick)
 	local currentStep =
 		math.floor(tick() / stepDelay)
 
+	-- gelombang radius (smooth tapi tetap ikut step)
+	local wave =
+		(math.sin(tick() * waveSpeed) + 1) / 2
+
+	local radius =
+		minRadius
+		+ (maxRadius - minRadius) * wave
+
+	-- angle pakai step (teleport)
 	local angle =
 		((i - 1) / count)
 		* math.pi * 2
@@ -695,7 +707,7 @@ if OrbitEnabled then
 		math.sin(angle) * radius
 	)
 
-end
+			end
 
 ---
 
