@@ -681,7 +681,7 @@ if OrbitEnabled then
 
 	-- sistem teleport (step)
 	local stepDelay = 0.05
-	local stepRotation = math.rad(0.5)
+	local stepRotation = math.rad(3)
 
 	-- hitung step (biar lompat per tick)
 	local currentStep =
@@ -804,10 +804,27 @@ local worldPos =
 	hrp.Position    
 	+ hrp.CFrame:VectorToWorldSpace(offset)    
 
-local cf =    
-	CFrame.new(worldPos)    
-	* hrp.CFrame.Rotation    
-	* rotation    
+local cf
+
+-- KHUSUS ORBIT
+if OrbitEnabled then
+	
+	local targetPos =
+		Vector3.new(
+			hrp.Position.X,
+			worldPos.Y,
+			hrp.Position.Z
+		)
+
+	cf = CFrame.lookAt(worldPos, targetPos)
+
+else
+	-- mode lain tetap normal
+	cf =
+		CFrame.new(worldPos)
+		* hrp.CFrame.Rotation
+		* rotation
+end
 
 pcall(function()    
 	data.Remote:InvokeServer(cf)    
