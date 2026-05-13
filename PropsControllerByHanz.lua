@@ -672,7 +672,7 @@ local rotation = CFrame.new()
 
 if OrbitEnabled then
 
-	local radius = 8
+	local radius = 20
 
 	-- tiap 0.3 detik pindah posisi
 	local stepDelay = 0.2
@@ -749,10 +749,10 @@ if WingsEnabled then
 	local tilt = 0
 
 if i == 1 then
-	tilt = math.rad(35)
+	tilt = math.rad(20)
 
 elseif i == count then
-	tilt = math.rad(-35)
+	tilt = math.rad(-20)
 end
 
 local cf =
