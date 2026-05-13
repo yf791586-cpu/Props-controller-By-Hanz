@@ -736,10 +736,10 @@ if WingsEnabled then
 		* -1
 
 	offset = Vector3.new(
-		x,
-		-1.85,
-		z + 2.3
-	)
+	x,
+	(math.abs(side) * 0.7) - 1.5,
+	z + 2.3
+				)
 
 	local worldPos =
 		bodyCF.Position
