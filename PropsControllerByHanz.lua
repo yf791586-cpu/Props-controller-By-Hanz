@@ -719,13 +719,14 @@ if WingsEnabled then
 	local side =
 		i - center
 
-	local stepDelay = 0.5
+	local stepDelay = 0.1
+			
 
 	local currentStep =
 		math.floor(tick() / stepDelay)
 
 	local flap =
-		math.sin(currentStep * 0.8)
+		math.sin(currentStep * 0.1)
 
 	local x =
 		side * spacing
