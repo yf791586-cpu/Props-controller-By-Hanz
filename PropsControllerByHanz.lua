@@ -742,7 +742,7 @@ if WingsEnabled then
 	local side = i - center
 
 	-- 🔥 pakai style lama (step feel)
-	local stepDelay = 0.03
+	local stepDelay = 0.24
 	local currentStep = math.floor(tick() / stepDelay)
 
 	local flap = math.sin(currentStep * 0.25)
@@ -756,7 +756,7 @@ if WingsEnabled then
 	local z = (spread * flap * -2) + 2
 
 	-- ❗ tinggi tetap stabil (bukan kepakan utama)
-	local y = (spread *2) - 2
+	local y = (spread *2.5) - 2
 
 	local offset = Vector3.new(x, y, z)
 
