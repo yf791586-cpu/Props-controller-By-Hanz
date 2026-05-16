@@ -714,6 +714,10 @@ if OrbitEnabled then
 -- WINGS    
 ---------------------------------------------------
 
+---------------------------------------------------
+-- WINGS (MODEL ||\\•//||)
+---------------------------------------------------
+
 if WingsEnabled then
 
 	local torso =
@@ -723,54 +727,40 @@ if WingsEnabled then
 	local bodyCF =
 		torso and torso.CFrame or hrp.CFrame
 
-	local spacing = 0.85
-
-	local center =
-		(count + 1) / 2
-
-	local side =
-		i - center
+	local center = (count + 1) / 2
+	local side = i - center
 
 	local stepDelay = 0.1
-			
+	local currentStep = math.floor(tick() / stepDelay)
 
-	local currentStep =
-		math.floor(tick() / stepDelay)
+	-- efek kepakan
+	local flap = math.sin(currentStep * 0.15)
 
-	local flap =
-		math.sin(currentStep * 0.1)
+	-- semakin ke luar makin lebar (bentuk \ /)
+	local spread = math.abs(side) * 1.2
 
-	local x =
-		side * spacing
+	-- posisi X (melebar keluar)
+	local x = side * 1.2
 
-	local z =
-		math.abs(side)
-		* flap
-		* -1
+	-- posisi Z (membentuk V ke belakang)
+	local z = -(spread * 0.8) + (flap * spread * 0.5)
 
-	offset = Vector3.new(
-	x,
-	(math.abs(side) * 0.7) - 1.5,
-	z + 2.3
-				)
+	-- posisi Y (naik dikit ke luar)
+	local y = (spread * 0.5) - 2
+
+	local offset = Vector3.new(x, y, z)
 
 	local worldPos =
 		bodyCF.Position
 		+ bodyCF:VectorToWorldSpace(offset)
 
-	local tilt = 0
+	-- rotasi biar miring keluar (kayak sayap)
+	local tilt = math.rad(side * 8)
 
-if i == 1 then
-	tilt = math.rad(20)
-
-elseif i == count then
-	tilt = math.rad(-20)
-end
-
-local cf =
-	CFrame.new(worldPos)
-	* bodyCF.Rotation
-	* CFrame.Angles(0, tilt, 0)
+	local cf =
+		CFrame.new(worldPos)
+		* bodyCF.Rotation
+		* CFrame.Angles(0, tilt, 0)
 
 	pcall(function()
 		data.Remote:InvokeServer(cf)
