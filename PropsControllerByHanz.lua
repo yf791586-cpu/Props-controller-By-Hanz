@@ -726,7 +726,7 @@ offset = Vector3.new(
 
 
 ---------------------------------------------------
--- WINGS (DEPAN + FULL TICK ANIMATION)
+-- WINGS (DEPAN + STYLE ASLI)
 ---------------------------------------------------
 
 if WingsEnabled then
@@ -741,27 +741,22 @@ if WingsEnabled then
 	local center = (count + 1) / 2
 	local side = i - center
 
-	local t = tick()
+	-- 🔥 pakai step kayak script awal
+	local stepDelay = 0.1
+	local currentStep = math.floor(tick() / stepDelay)
 
-	-- 🔥 delay per part (biar kayak gelombang sayap)
-	local delayOffset = i * 0.25
-
-	-- animasi utama
-	local flap = math.sin((t * 5) + delayOffset)
-
-	-- wave tambahan (biar ujung beda gerak)
-	local wave = math.cos((t * 3) + (math.abs(side) * 0.5))
+	-- 🔥 flap khas lama (INI KUNCINYA)
+	local flap = math.sin(currentStep * 0.1)
 
 	local spread = math.abs(side)
 
-	-- kiri kanan (bentuk sayap)
-	local x = side * 1.6
+	-- bentuk tetap depan
+	local x = side * 1.3
 
-	-- naik turun (kepakan hidup)
-	local y = (spread * 0.8) - 2 + (flap * 1.2)
+	-- posisi mirip awal kamu
+	local z = (math.abs(side) * flap * -1) + 2.3
 
-	-- sedikit maju mundur biar 3D hidup
-	local z = 2 + (wave * 0.6)
+	local y = (spread * 0.7) - 1.5
 
 	local offset = Vector3.new(x, y, z)
 
@@ -769,21 +764,25 @@ if WingsEnabled then
 		bodyCF.Position
 		+ bodyCF:VectorToWorldSpace(offset)
 
-	-- rotasi sayap (ikut flap + bentuk V)
-	local tiltZ = math.rad((side * 14) + (flap * 8))
+	local tilt = 0
+
+	if i == 1 then
+		tilt = math.rad(20)
+	elseif i == count then
+		tilt = math.rad(-20)
+	end
 
 	local cf =
 		CFrame.new(worldPos)
 		* bodyCF.Rotation
-		* CFrame.Angles(0, 0, -tiltZ)
+		* CFrame.Angles(0, tilt, 0)
 
 	pcall(function()
 		data.Remote:InvokeServer(cf)
 	end)
 
 	continue
-      end
-
+			end
 
 ---
 
