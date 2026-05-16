@@ -750,7 +750,7 @@ if WingsEnabled then
 	local spread = math.abs(side)
 
 	-- ❗ bentuk tetap (jangan diubah)
-	local x = side * 1.6
+	local x = side * 5
 
 	-- 🔥 INI KUNCI: gerakan diagonal depan-belakang
 	local z = (spread * flap * -2) + 2
