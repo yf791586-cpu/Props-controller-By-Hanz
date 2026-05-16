@@ -709,13 +709,8 @@ if OrbitEnabled then
 
 			end
 
----
-
--- WINGS    
 ---------------------------------------------------
-
----------------------------------------------------
--- WINGS (MODEL ||\\•//||)
+-- WINGS (DEPAN/BELAKANG ||\\•//||)
 ---------------------------------------------------
 
 if WingsEnabled then
@@ -736,17 +731,17 @@ if WingsEnabled then
 	-- efek kepakan
 	local flap = math.sin(currentStep * 0.15)
 
-	-- semakin ke luar makin lebar (bentuk \ /)
-	local spread = math.abs(side) * 1.2
+	-- semakin ke luar makin melebar
+	local spread = math.abs(side)
 
-	-- posisi X (melebar keluar)
-	local x = side * 1.2
+	-- ❗ X = kiri kanan (utama)
+	local x = side * 1.5
 
-	-- posisi Z (membentuk V ke belakang)
-	local z = -(spread * 0.8) + (flap * spread * 0.5)
+	-- ❗ Y = naik dikit biar keliatan sayap
+	local y = (spread * 0.8) - 2 + (flap * 0.5)
 
-	-- posisi Y (naik dikit ke luar)
-	local y = (spread * 0.5) - 2
+	-- ❗ Z = hampir flat (biar gak maju mundur)
+	local z = 2
 
 	local offset = Vector3.new(x, y, z)
 
@@ -754,13 +749,13 @@ if WingsEnabled then
 		bodyCF.Position
 		+ bodyCF:VectorToWorldSpace(offset)
 
-	-- rotasi biar miring keluar (kayak sayap)
-	local tilt = math.rad(side * 8)
+	-- miring keluar (biar bentuk \ / dari depan)
+	local tiltZ = math.rad(side * 12)
 
 	local cf =
 		CFrame.new(worldPos)
 		* bodyCF.Rotation
-		* CFrame.Angles(0, tilt, 0)
+		* CFrame.Angles(0, 0, -tiltZ)
 
 	pcall(function()
 		data.Remote:InvokeServer(cf)
@@ -768,7 +763,6 @@ if WingsEnabled then
 
 	continue
 			end
-
 ---
 
 -- RING    
