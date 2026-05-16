@@ -726,7 +726,7 @@ offset = Vector3.new(
 
 
 ---------------------------------------------------
--- WINGS (BENTUK BARU + ANIMASI LAMA)
+-- WINGS (BENTUK SAMA + DIAGONAL ANIMASI LAMA)
 ---------------------------------------------------
 
 if WingsEnabled then
@@ -741,27 +741,22 @@ if WingsEnabled then
 	local center = (count + 1) / 2
 	local side = i - center
 
-	-- 🔥 STEP SYSTEM (INI KUNCINYA)
+	-- 🔥 pakai style lama (step feel)
 	local stepDelay = 0.08
 	local currentStep = math.floor(tick() / stepDelay)
 
-	-- 🔥 delay per part (tetap ada biar gelombang)
-	local delayOffset = i * 0.5
-
-	-- 🔥 animasi khas lama (bukan smooth)
-	local flap = math.sin((currentStep * 0.3) + delayOffset)
-
-	-- 🔥 wave juga pakai step biar konsisten
-	local wave = math.cos((currentStep * 0.2) + (math.abs(side) * 0.5))
+	local flap = math.sin(currentStep * 0.25)
 
 	local spread = math.abs(side)
 
-	-- ✅ bentuk tetap punya kamu
+	-- ❗ bentuk tetap (jangan diubah)
 	local x = side * 1.6
 
-	local y = (spread * 0.8) - 2 + (flap * 1.2)
+	-- 🔥 INI KUNCI: gerakan diagonal depan-belakang
+	local z = (spread * flap * -2) + 2
 
-	local z = 2 + (wave * 0.6)
+	-- ❗ tinggi tetap stabil (bukan kepakan utama)
+	local y = (spread * 0.8) - 2
 
 	local offset = Vector3.new(x, y, z)
 
@@ -769,8 +764,8 @@ if WingsEnabled then
 		bodyCF.Position
 		+ bodyCF:VectorToWorldSpace(offset)
 
-	-- rotasi tetap
-	local tiltZ = math.rad((side * 14) + (flap * 8))
+	-- rotasi biar tetap V shape
+	local tiltZ = math.rad(side * 14)
 
 	local cf =
 		CFrame.new(worldPos)
@@ -783,7 +778,6 @@ if WingsEnabled then
 
 	continue
 			end
-
 ---
 
 -- RING
