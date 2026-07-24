@@ -1,1 +1,646 @@
+-- ==============================================================================
+-- HANZ GUI - MODERN UI FRAMEWORK (UPDATE: SAVE/LOAD FAVORITES & CUSTOM MUSIC NAMES)
+-- Fitur: Save Favorite Permanen, Custom TextBox, Green Play Button, No-Stuck Scroll
+-- ==============================================================================
 
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
+
+local Player = Players.LocalPlayer
+
+-- Cek jika GUI sudah ada, hapus yang lama (Auto-Refresh)
+for _, gui in pairs(CoreGui:GetChildren()) do
+    if gui.Name == "HanzGui_Modern" then
+        gui:Destroy()
+    end
+end
+
+-- ==========================================
+-- SISTEM SAVE/LOAD FAVORITE (JSON)
+-- ==========================================
+local SaveFileName = "HanzGui_Favorites.json"
+local SavedFavorites = {}
+
+-- Fungsi untuk membaca file simpanan
+pcall(function()
+    if isfile and isfile(SaveFileName) then
+        local data = readfile(SaveFileName)
+        SavedFavorites = HttpService:JSONDecode(data)
+    end
+end)
+
+-- Fungsi untuk menyimpan perubahan ke file
+local function SaveFavoritesToFile()
+    pcall(function()
+        if writefile then
+            local data = HttpService:JSONEncode(SavedFavorites)
+            writefile(SaveFileName, data)
+        end
+    end)
+end
+
+-- ==========================================
+-- PENGATURAN TEMA WARNA
+-- ==========================================
+local Theme = {
+    Background = Color3.fromRGB(15, 15, 20),
+    Sidebar = Color3.fromRGB(20, 20, 25),
+    Topbar = Color3.fromRGB(25, 25, 30),
+    Accent = Color3.fromRGB(99, 102, 241),
+    Text = Color3.fromRGB(255, 255, 255),
+    TextDark = Color3.fromRGB(150, 150, 150),
+    ElementBg = Color3.fromRGB(30, 30, 35),
+    Hover = Color3.fromRGB(40, 40, 45)
+}
+
+-- ==========================================
+-- MEMBUAT GUI UTAMA
+-- ==========================================
+local HanzGui = Instance.new("ScreenGui")
+HanzGui.Name = "HanzGui_Modern"
+HanzGui.Parent = CoreGui
+HanzGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+HanzGui.ResetOnSpawn = false
+
+local Bubble = Instance.new("ImageButton")
+Bubble.Name = "FloatingBubble"
+Bubble.Parent = HanzGui
+Bubble.Size = UDim2.new(0, 0, 0, 0)
+Bubble.Position = UDim2.new(0.5, -25, 0, 20)
+Bubble.AnchorPoint = Vector2.new(0.5, 0.5)
+Bubble.BackgroundColor3 = Theme.Accent
+Bubble.Image = "rbxassetid://6031090690"
+Bubble.Visible = false
+Bubble.AutoButtonColor = false
+Instance.new("UICorner", Bubble).CornerRadius = UDim.new(1, 0)
+
+local BubbleStroke = Instance.new("UIStroke")
+BubbleStroke.Color = Color3.fromRGB(255, 255, 255)
+BubbleStroke.Thickness = 2
+BubbleStroke.Transparency = 0.5
+BubbleStroke.Parent = Bubble
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = HanzGui
+MainFrame.Size = UDim2.new(0, 500, 0, 300)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+MainFrame.BackgroundColor3 = Theme.Background
+MainFrame.ClipsDescendants = true
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Theme.Accent
+MainStroke.Thickness = 1
+MainStroke.Parent = MainFrame
+
+local Topbar = Instance.new("Frame")
+Topbar.Name = "Topbar"
+Topbar.Parent = MainFrame
+Topbar.Size = UDim2.new(1, 0, 0, 35)
+Topbar.BackgroundColor3 = Theme.Topbar
+Topbar.BorderSizePixel = 0
+Instance.new("UICorner", Topbar).CornerRadius = UDim.new(0, 8)
+
+local TopFix = Instance.new("Frame")
+TopFix.Size = UDim2.new(1, 0, 0, 8)
+TopFix.Position = UDim2.new(0, 0, 1, -8)
+TopFix.BackgroundColor3 = Theme.Topbar
+TopFix.BorderSizePixel = 0
+TopFix.Parent = Topbar
+
+local Title = Instance.new("TextLabel")
+Title.Parent = Topbar
+Title.Size = UDim2.new(1, -100, 1, 0)
+Title.Position = UDim2.new(0, 15, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "Hanz Gui"
+Title.TextColor3 = Theme.Accent
+Title.TextSize = 16
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Parent = Topbar
+CloseBtn.Size = UDim2.new(0, 35, 0, 35)
+CloseBtn.Position = UDim2.new(1, -35, 0, 0)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Theme.TextDark
+CloseBtn.TextSize = 14
+CloseBtn.Font = Enum.Font.GothamBold
+
+local MinimizeBtn = Instance.new("TextButton")
+MinimizeBtn.Parent = Topbar
+MinimizeBtn.Size = UDim2.new(0, 35, 0, 35)
+MinimizeBtn.Position = UDim2.new(1, -70, 0, 0)
+MinimizeBtn.BackgroundTransparency = 1
+MinimizeBtn.Text = "-"
+MinimizeBtn.TextColor3 = Theme.TextDark
+MinimizeBtn.TextSize = 18
+MinimizeBtn.Font = Enum.Font.GothamBold
+
+local Sidebar = Instance.new("Frame")
+Sidebar.Parent = MainFrame
+Sidebar.Size = UDim2.new(0, 120, 1, -35)
+Sidebar.Position = UDim2.new(0, 0, 0, 35)
+Sidebar.BackgroundColor3 = Theme.Sidebar
+Sidebar.BorderSizePixel = 0
+
+local SidebarLayout = Instance.new("UIListLayout")
+SidebarLayout.Parent = Sidebar
+SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+SidebarLayout.Padding = UDim.new(0, 5)
+
+local SidebarPadding = Instance.new("UIPadding")
+SidebarPadding.Parent = Sidebar
+SidebarPadding.PaddingTop = UDim.new(0, 10)
+SidebarPadding.PaddingLeft = UDim.new(0, 10)
+SidebarPadding.PaddingRight = UDim.new(0, 10)
+
+local ContentArea = Instance.new("Frame")
+ContentArea.Parent = MainFrame
+ContentArea.Size = UDim2.new(1, -120, 1, -35)
+ContentArea.Position = UDim2.new(0, 120, 0, 35)
+ContentArea.BackgroundTransparency = 1
+
+-- ==========================================
+-- FUNGSI DRAG (MOBILE & PC FRIENDLY)
+-- ==========================================
+local function MakeDraggable(guiObject, handle)
+    local dragging, dragInput, dragStart, startPos
+    local function update(input)
+        local delta = input.Position - dragStart
+        guiObject.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+    handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = guiObject.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    guiObject.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
+    end)
+end
+
+MakeDraggable(MainFrame, Topbar)
+MakeDraggable(Bubble, Bubble)
+
+-- ==========================================
+-- ANIMASI WINDOW
+-- ==========================================
+local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+MainFrame.Size = UDim2.new(0, 0, 0, 0)
+TweenService:Create(MainFrame, tweenInfo, {Size = UDim2.new(0, 500, 0, 300)}):Play()
+
+CloseBtn.MouseButton1Click:Connect(function()
+    local closeAnim = TweenService:Create(MainFrame, tweenInfo, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
+    closeAnim:Play()
+    closeAnim.Completed:Wait()
+    HanzGui:Destroy()
+end)
+
+MinimizeBtn.MouseButton1Click:Connect(function()
+    TweenService:Create(MainFrame, tweenInfo, {Size = UDim2.new(0, 0, 0, 0)}):Play()
+    task.wait(0.2)
+    MainFrame.Visible = false
+    Bubble.Visible = true
+    TweenService:Create(Bubble, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)}):Play()
+end)
+
+Bubble.MouseButton1Click:Connect(function()
+    local hideBubble = TweenService:Create(Bubble, tweenInfo, {Size = UDim2.new(0, 0, 0, 0)})
+    hideBubble:Play()
+    hideBubble.Completed:Wait()
+    Bubble.Visible = false
+    MainFrame.Visible = true
+    TweenService:Create(MainFrame, tweenInfo, {Size = UDim2.new(0, 500, 0, 300)}):Play()
+end)
+
+local function ApplyHover(btn, hoverColor)
+    local originalColor = btn.TextColor3
+    btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {TextColor3 = hoverColor}):Play() end)
+    btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {TextColor3 = originalColor}):Play() end)
+end
+ApplyHover(CloseBtn, Color3.fromRGB(255, 50, 50))
+ApplyHover(MinimizeBtn, Theme.Accent)
+
+-- ==========================================
+-- FUNGSI MEMBUAT ELEMEN GUI & TAB
+-- ==========================================
+local Pages = {}
+local activeTab = nil
+
+local function CreateTab(tabName)
+    local TabBtn = Instance.new("TextButton")
+    TabBtn.Parent = Sidebar
+    TabBtn.Size = UDim2.new(1, 0, 0, 30)
+    TabBtn.BackgroundColor3 = Theme.ElementBg
+    TabBtn.Text = tabName
+    TabBtn.TextColor3 = Theme.TextDark
+    TabBtn.Font = Enum.Font.GothamSemibold
+    TabBtn.TextSize = 12
+    TabBtn.AutoButtonColor = false
+    Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
+
+    local Page = Instance.new("ScrollingFrame")
+    Page.Parent = ContentArea
+    Page.Size = UDim2.new(1, 0, 1, 0)
+    Page.BackgroundTransparency = 1
+    Page.ScrollBarThickness = 3
+    Page.Visible = false
+    Page.BorderSizePixel = 0
+
+    local PageLayout = Instance.new("UIListLayout")
+    PageLayout.Parent = Page
+    PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    PageLayout.Padding = UDim.new(0, 8)
+
+    local PagePadding = Instance.new("UIPadding")
+    PagePadding.Parent = Page
+    PagePadding.PaddingTop = UDim.new(0, 10)
+    PagePadding.PaddingLeft = UDim.new(0, 10)
+    PagePadding.PaddingRight = UDim.new(0, 10)
+
+    -- Perbaikan Scroll Stuck
+    PageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        Page.CanvasSize = UDim2.new(0, 0, 0, PageLayout.AbsoluteContentSize.Y + 20)
+    end)
+
+    TabBtn.MouseButton1Click:Connect(function()
+        for _, p in pairs(Pages) do
+            p.Page.Visible = false
+            TweenService:Create(p.Btn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.ElementBg, TextColor3 = Theme.TextDark}):Play()
+        end
+        Page.Visible = true
+        TweenService:Create(TabBtn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.Accent, TextColor3 = Theme.Text}):Play()
+    end)
+
+    if not activeTab then
+        activeTab = true
+        Page.Visible = true
+        TabBtn.BackgroundColor3 = Theme.Accent
+        TabBtn.TextColor3 = Theme.Text
+    end
+
+    table.insert(Pages, {Btn = TabBtn, Page = Page})
+    local Elements = {}
+
+    function Elements:CreateTextBox(placeholderText)
+        local TextBox = Instance.new("TextBox")
+        TextBox.Parent = Page
+        TextBox.Size = UDim2.new(1, 0, 0, 35)
+        TextBox.BackgroundColor3 = Theme.ElementBg
+        TextBox.Text = ""
+        TextBox.PlaceholderText = placeholderText
+        TextBox.TextColor3 = Theme.Text
+        TextBox.PlaceholderColor3 = Theme.TextDark
+        TextBox.Font = Enum.Font.Gotham
+        TextBox.TextSize = 13
+        TextBox.ClearTextOnFocus = false
+        Instance.new("UICorner", TextBox).CornerRadius = UDim.new(0, 6)
+
+        TextBox.MouseEnter:Connect(function() TweenService:Create(TextBox, TweenInfo.new(0.2), {BackgroundColor3 = Theme.Hover}):Play() end)
+        TextBox.MouseLeave:Connect(function() TweenService:Create(TextBox, TweenInfo.new(0.2), {BackgroundColor3 = Theme.ElementBg}):Play() end)
+        return TextBox
+    end
+
+    function Elements:CreateButton(btnText, callback, customBgColor)
+        local baseColor = customBgColor or Theme.ElementBg
+        local r = math.clamp(math.floor((baseColor.R * 255) + 20), 0, 255)
+        local g = math.clamp(math.floor((baseColor.G * 255) + 20), 0, 255)
+        local b = math.clamp(math.floor((baseColor.B * 255) + 20), 0, 255)
+        local hoverColor = customBgColor and Color3.fromRGB(r, g, b) or Theme.Hover
+
+        local Btn = Instance.new("TextButton")
+        Btn.Parent = Page
+        Btn.Size = UDim2.new(1, 0, 0, 35)
+        Btn.BackgroundColor3 = baseColor
+        Btn.Text = btnText
+        Btn.TextColor3 = Theme.Text
+        Btn.Font = Enum.Font.GothamBold
+        Btn.TextSize = 13
+        Btn.AutoButtonColor = false
+        Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
+
+        Btn.MouseEnter:Connect(function() TweenService:Create(Btn, TweenInfo.new(0.2), {BackgroundColor3 = hoverColor}):Play() end)
+        Btn.MouseLeave:Connect(function() TweenService:Create(Btn, TweenInfo.new(0.2), {BackgroundColor3 = baseColor}):Play() end)
+        
+        Btn.MouseButton1Click:Connect(function()
+            local rip = Instance.new("Frame")
+            rip.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            rip.BackgroundTransparency = 0.8
+            rip.Size = UDim2.new(1, 0, 1, 0)
+            Instance.new("UICorner", rip).CornerRadius = UDim.new(0, 6)
+            rip.Parent = Btn
+            local ripTween = TweenService:Create(rip, TweenInfo.new(0.3), {BackgroundTransparency = 1, Size = UDim2.new(1.1, 0, 1.5, 0)})
+            ripTween:Play()
+            ripTween.Completed:Connect(function() rip:Destroy() end)
+            if callback then callback() end
+        end)
+        return Btn
+    end
+
+    function Elements:CreateMusicRow(btnText, musicId, callback, targetFavTab)
+        local Row = Instance.new("Frame")
+        Row.Parent = Page
+        Row.Size = UDim2.new(1, 0, 0, 35)
+        Row.BackgroundTransparency = 1
+
+        local MainBtn = Instance.new("TextButton")
+        MainBtn.Parent = Row
+        MainBtn.Size = UDim2.new(1, -40, 1, 0)
+        MainBtn.BackgroundColor3 = Theme.ElementBg
+        MainBtn.Text = btnText
+        MainBtn.TextColor3 = Theme.Text
+        MainBtn.Font = Enum.Font.Gotham
+        MainBtn.TextSize = 13
+        MainBtn.AutoButtonColor = false
+        Instance.new("UICorner", MainBtn).CornerRadius = UDim.new(0, 6)
+
+        local HeartBtn = Instance.new("TextButton")
+        HeartBtn.Parent = Row
+        HeartBtn.Size = UDim2.new(0, 35, 1, 0)
+        HeartBtn.Position = UDim2.new(1, -35, 0, 0)
+        HeartBtn.BackgroundColor3 = Theme.ElementBg
+        HeartBtn.Font = Enum.Font.Gotham
+        HeartBtn.TextSize = 16
+        HeartBtn.AutoButtonColor = false
+        Instance.new("UICorner", HeartBtn).CornerRadius = UDim.new(0, 6)
+
+        MainBtn.MouseEnter:Connect(function() TweenService:Create(MainBtn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.Hover}):Play() end)
+        MainBtn.MouseLeave:Connect(function() TweenService:Create(MainBtn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.ElementBg}):Play() end)
+        HeartBtn.MouseEnter:Connect(function() TweenService:Create(HeartBtn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.Hover}):Play() end)
+        HeartBtn.MouseLeave:Connect(function() TweenService:Create(HeartBtn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.ElementBg}):Play() end)
+
+        MainBtn.MouseButton1Click:Connect(function()
+            local rip = Instance.new("Frame")
+            rip.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            rip.BackgroundTransparency = 0.8
+            rip.Size = UDim2.new(1, 0, 1, 0)
+            Instance.new("UICorner", rip).CornerRadius = UDim.new(0, 6)
+            rip.Parent = MainBtn
+            local ripTween = TweenService:Create(rip, TweenInfo.new(0.3), {BackgroundTransparency = 1, Size = UDim2.new(1.1, 0, 1.5, 0)})
+            ripTween:Play()
+            ripTween.Completed:Connect(function() rip:Destroy() end)
+            if callback then callback() end
+        end)
+
+        local isFav = SavedFavorites[musicId] == true
+        local favButtonRef = nil
+
+        if isFav then
+            HeartBtn.Text = "❌"
+            if targetFavTab then
+                favButtonRef = targetFavTab:CreateButton(btnText, callback)
+            end
+        else
+            HeartBtn.Text = "❤️"
+        end
+
+        HeartBtn.MouseButton1Click:Connect(function()
+            isFav = not isFav
+            if isFav then
+                HeartBtn.Text = "❌"
+                SavedFavorites[musicId] = true
+                SaveFavoritesToFile()
+                if targetFavTab then
+                    favButtonRef = targetFavTab:CreateButton(btnText, callback)
+                end
+            else
+                HeartBtn.Text = "❤️"
+                SavedFavorites[musicId] = nil
+                SaveFavoritesToFile()
+                if favButtonRef then
+                    favButtonRef:Destroy()
+                    favButtonRef = nil
+                end
+            end
+        end)
+
+        return Row
+    end
+
+    return Elements
+end
+
+-- ==========================================
+-- SETUP TAB CONTENT (URUTAN: HOME -> MUSIC ID -> FAVORITE)
+-- ==========================================
+
+local TabHome = CreateTab("Home")
+local TabMusic = CreateTab("Music ID")
+local TabFavorite = CreateTab("Favorite") 
+
+-- ==========================================
+-- ISI TAB: HOME
+-- ==========================================
+
+local InputMusicID = TabHome:CreateTextBox("Input Music ID Manual...")
+
+TabHome:CreateButton("▶ Play Music", function()
+    local idToPlay = InputMusicID.Text
+    idToPlay = string.match(idToPlay, "^%s*(.-)%s*$")
+    
+    if idToPlay and idToPlay ~= "" then
+        local Event = ReplicatedStorage:FindFirstChild("RE")
+        if Event and Event:FindFirstChild("1NoMoto1rVehicle1s") then
+            Event["1NoMoto1rVehicle1s"]:FireServer("PickingScooterMusicText", idToPlay, nil, true)
+        end
+    end
+end, Color3.fromRGB(46, 204, 113))
+
+TabHome:CreateButton("SkateBoard", function()
+    local Event = ReplicatedStorage:FindFirstChild("RE")
+    if Event and Event:FindFirstChild("1NoMoto1rVehicle1s") then
+        Event["1NoMoto1rVehicle1s"]:FireServer("SkateBoard", nil)
+    end
+end)
+
+TabHome:CreateButton("HeavyBoard", function()
+    local Event = ReplicatedStorage:FindFirstChild("RE")
+    if Event and Event:FindFirstChild("1NoMoto1rVehicle1s") then
+        Event["1NoMoto1rVehicle1s"]:FireServer("SegwaySmall", nil)
+    end
+end)
+
+TabHome:CreateButton("DeleteBoard❌", function()
+    local Event = ReplicatedStorage:FindFirstChild("RE")
+    if Event and Event:FindFirstChild("1NoMoto1rVehicle1s") then
+        Event["1NoMoto1rVehicle1s"]:FireServer("Delete NoMotorVehicle")
+    end
+end, Color3.fromRGB(231, 76, 60))
+
+-- ==========================================
+-- ISI TAB: MUSIC ID (SESUAI JUDUL DARI LINK)
+-- ==========================================
+local musicList = {
+    {id = "104207837699519", name = "Tabola-Bale"},
+    {id = "96077163288111", name = "Kita-Usahakan-Lagi"},
+    {id = "103947648413202", name = "DJ-Kajol-Cantik"},
+    {id = "100787734732008", name = "Aku-Suka-Jedag-Jedug-Full-Bass"},
+    {id = "85427648559465", name = "DJ-Phut-Hon-Indo-Full-Bass"},
+    {id = "91089804280618", name = "Suka-Suka-Bahagia-Enak-Enak"},
+    {id = "101824470324116", name = "Boomshakalakaboom"},
+    {id = "79073283903510", name = "Joget-Lalalala"},
+    {id = "117319879647586", name = "Kick-It"},
+    {id = "77533933904801", name = "Coba-Coba"},
+    {id = "122389825417820", name = "Moonlighthood"},
+    {id = "116647235474599", name = "Tantae"},
+    {id = "122665842844850", name = "Cikini-Gondangdia"},
+    {id = "98337901681441", name = "Mente-ma"},
+    {id = "78859797813378", name = "Pargoy-Gerah-Skidipapap"},
+    {id = "137067689748748", name = "Pargoy-Bass-Ojo-Pake-Le"},
+    {id = "90471492509215", name = "Pong-Pong-Enak"},
+    {id = "121868316988947", name = "Espacio-Funk-Ultra-Slow"},
+    {id = "90145710334449", name = "JJ-WORLD-MENGKANE-UDAH-MAMPU-GAK-BOS"},
+    {id = "118390472006859", name = "DJ-PARTY-SHAKER-MENGKANE-JEDAG-JEDUG"},
+    {id = "137657207613132", name = "STAY-KANE-TEMAN-GIBAH"},
+    {id = "135018311294635", name = "DJ-CINNAMON-GIRL"},
+    {id = "111318048787674", name = "PASSO-BEM-SOLTO-SUBMUNDO"},
+    {id = "137067689748748", name = "Pargoy-Bass-Ojo-Pake-Le"},
+    {id = "118538313029983", name = "WHERE-WE-ARE-DUTCH-X-PLAT-KT"},
+    {id = "101351410845508", name = "MAIMUNA-JAMILA-LAMBADA"},
+    {id = "132497938577328", name = "Oo-Ade-Sunika-Velocity-Radya-Sopan-2025"},
+    {id = "75449960457040", name = "Rewrite-The-Stars-Aditya-Koh-Edit-2025"},
+    {id = "81015683211393", name = "Lagu-17-Agustusan"},
+    {id = "119254319180287", name = "AKU-DONG"},
+    {id = "140380438039459", name = "enak"},
+    {id = "102691597341093", name = "we-be-burn"},
+    {id = "135473905127296", name = "50เปอเซน"},
+    {id = "124327505221192", name = "ไดสก"},
+    {id = "129988226070628", name = "พนตต"},
+    {id = "128153179827416", name = "วนนา"},
+    {id = "78596441510872", name = "ซเปอเบสส"},
+    {id = "74758860515324", name = "อนยวอาาายอ"},
+    {id = "139590201617508", name = "คพโซลา"},
+    {id = "94403836240383", name = "ลอส-คอนโทรล"},
+    {id = "94677274916350", name = "EENIE-MEENIE-x-DANZA-KUDURO"},
+    {id = "130721206402716", name = "KAMNH-VELOCITY-RD-VERSI-2025"},
+    {id = "79487691695967", name = "Corazón-Esmeralda-Slowed"},
+    {id = "135454681412242", name = "KOREAN-PIGEON-FUNK-SUPER-SLOWED"},
+    {id = "116919531808240", name = "4_7K-FUNK-SUPER-SLOWED"},
+    {id = "84375376949847", name = "MONTAGEM-IMPARABLE-Ultra-Slowed"},
+    {id = "99518929868012", name = "Gym-Mockingbird-Remix"},
+    {id = "130132238955126", name = "THE-LAST-SAHUR"},
+    {id = "104206090255438", name = "อออา-แมวหมน"},
+    {id = "114128715751316", name = "zombie-หมอลำแดนซ"},
+    {id = "125014875225876", name = "ALONE"},
+    {id = "119341948158777", name = "Mang-Chủng-หมอลำ"},
+    {id = "100991657598498", name = "Lollipop"},
+    {id = "123418190503573", name = "ตามจงหวะ"},
+    {id = "107341259483191", name = "Love-Story-แดนซ"},
+    {id = "123800281319097", name = "Phut-Hon"},
+    {id = "84465860347641", name = "comethru-eiei"},
+    {id = "107640531223957", name = "Music 58"},
+    {id = "107640531223975", name = "Stereo-Love-แดนซ"},
+    {id = "97785104909396", name = "ARIA"},
+    {id = "81122165966323", name = "MENDISCO"},
+    {id = "79928677555141", name = "NOTHING-BEATS-JET"},
+    {id = "82426641996836", name = "Wo-De-Ge-Sheng-Li"},
+    {id = "108945308421407", name = "DJ-Anu-Terindah"},
+    {id = "94133616443608", name = "Wicked-Dancing-Through-Life-Animation-Pa-Walk"},
+    {id = "79789194522561", name = "Wicked-Dancing-Through-Life-Animation-Pack-Run"},
+    {id = "70633665224310", name = "TOR-MONITOR-GACOR-fyp"},
+    {id = "95193214835257", name = "fear"},
+    {id = "108092699453319", name = "Alone"},
+    {id = "119822943881590", name = "HABIBI"},
+    {id = "115492336583856", name = "cheap-thrills-888"},
+    {id = "107887768910692", name = "Summertime-Sadness-แดนซ"},
+    {id = "109149632133821", name = "Dj-Alone-Ranto-Gudel-แดนซ"},
+    {id = "104177688386014", name = "Feel-Only-Love-แดนซ"},
+    {id = "77759116439066", name = "Ya-Odna-แดนซ"},
+    {id = "72123236359982", name = "Where-Have-You-Been"},
+    {id = "136390616280021", name = "play-plat"},
+    {id = "103149678972610", name = "SadTtt1234"},
+    {id = "83955529112875", name = "DJ-WHERE-HAVE-YOU-BEEN-X-STEREO-LOVE-SLOW"},
+    {id = "122283659725483", name = "Yank-Asik-Banget"},
+    {id = "94403836240383", name = "ลอส-คอนโทรล"},
+    {id = "91253824604131", name = "Wanderer-Enhanced"},
+    {id = "109207776495692", name = "Mágico-3-by-Draax"},
+    {id = "71352440268880", name = "DJ-BUKAN-SULAP-BUKAN-SIHIR-SPONTAN"},
+    {id = "116525313479094", name = "DJ-VACATION-KANEHOLIC"},
+    {id = "112447571198662", name = "Menungso-Oratoto"},
+    {id = "96077163288111", name = "Kita-Usahakan-Lagi"},
+    {id = "81917604745938", name = "Re"},
+    {id = "84430849761882", name = "Music 89"},
+    {id = "96815508293389", name = "Super-Tall-Blocky-Right-Leg"},
+    {id = "121515016872144", name = "Super-Tall-Blocky-Left-Leg"},
+    {id = "110919391228823", name = "Low-Cortisol"},
+    {id = "107653964741703", name = "aku-tak-ingin"},
+    {id = "131960430999494", name = "ayo-goyang-papa-muda"},
+    {id = "133295272028389", name = "Music 95"},
+    {id = "82219139681769", name = "Amazon-Unboxed-Animation-Pack-Idle"},
+    {id = "76596803175980", name = "DJ-JAUHKAU-PERGI"},
+    {id = "132970474436648", name = "DJ-CONCRETE-ANGEL-MENGKANE"},
+    {id = "75038580640135", name = "แบะแบะแบะ"},
+    {id = "125902207303673", name = "อเคเฟรอ"},
+    {id = "70583524630795", name = "secepat-kilat"},
+    {id = "108790892752137", name = "tes-kriuk-1"},
+    {id = "74566452986791", name = "coba-dulu-v2"},
+    {id = "136130847958631", name = "coba-dulu-v6"},
+    {id = "123393472008025", name = "coba-dulu-v7"},
+    {id = "101839542383818", name = "Popular-Idle"},
+    {id = "136276875045281", name = "Popular-Run"},
+    {id = "111223578136200", name = "Always-Loving-You-DJ-PayXDeFit"},
+    {id = "119037495327681", name = "ปาจก-TEAM-MPB"},
+    {id = "70582373853805", name = "Plush-Chibi-Bunny-Right-Leg"},
+    {id = "70380761114055", name = "Plush-Chibi-Bunny-Left-Leg"},
+    {id = "127882927724797", name = "CURI-CURI-PANDANG-HolyCipaa"},
+    {id = "140638998570396", name = "DJ-MARI-YETY-MARI-YO-JJ-MENGKANE-ULTRA-REVERB"},
+    {id = "77222785479261", name = "SIKSA-MENANGGUNG-RINDU-SEMUA-SIA-SIA"},
+    {id = "106460063662810", name = "DJ-TERI-MERI"},
+    {id = "76748469568032", name = "Natraa-Get-Party-Started-x-Takutu-kutu"},
+    {id = "117487437387749", name = "Berlyn-Mix-Angkot"},
+    {id = "86322376706738", name = "Slaughter"},
+    {id = "72713192744393", name = "เพลงแจกฟรไมไดขายนะจะ"},
+    {id = "109337680029292", name = "Japan"},
+    {id = "87312816877286", name = "JINWOO-Jangan-Ganggu-Pacarku-MIX-By-Schatzi"},
+    {id = "92615700565043", name = "DJ-Out-of-love"},
+    {id = "83435514857435", name = "DJ-Be-as-one"},
+    {id = "87341958008372", name = "Funkot-Fa-Mi-Re"},
+    {id = "128662460805771", name = "DJ-RameliaXAngels"},
+    {id = "125026658817868", name = "seLoraini-RIVER-FLOWS-IN-YOU"},
+    {id = "73024561507426", name = "seLoraini-II-PRAISE-THE-LORD"},
+    {id = "107926418178968", name = "NicolPL-II-So-Asa"},
+    {id = "127041289217486", name = "dehuPL-MIDNIGHT"},
+    {id = "120017030311480", name = "dance-floor"},
+    {id = "133054388088474", name = "DJ-BRONDONG-TUWA-BOTLEG-Ehan-Music"},
+    {id = "117574079633196", name = "JAY-Blackhole-Breakbeat"},
+    {id = "121294940327865", name = "CELAWZE-HIPHOP-BTK-X-TIMUR-V1"},
+    {id = "119833746241221", name = "Stucy-TERCIPTA-X-KICAU-I-LHS"},
+    {id = "116231101283651", name = "Stucy-INDOBOUNCE-Cle-House-pt3"},
+    {id = "72693126591985", name = "MBG-MAS-BAHLIL-GANTENG-FUNK-2"},
+    {id = "128071048140468", name = "Natraa-Always-Loving-x-My-Neck"},
+    {id = "127933835766961", name = "Natraa-Mix-2-FtFrezboy"}
+}
+
+for i, item in ipairs(musicList) do
+    local buttonTitle = tostring(i) .. ". " .. item.name
+    
+    TabMusic:CreateMusicRow(buttonTitle, item.id, function()
+        local Event = ReplicatedStorage:FindFirstChild("RE")
+        if Event and Event:FindFirstChild("1NoMoto1rVehicle1s") then
+            Event["1NoMoto1rVehicle1s"]:FireServer("PickingScooterMusicText", item.id, nil, true)
+        end
+    end, TabFavorite)
+end
