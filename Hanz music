@@ -1,14 +1,101 @@
--- ==============================================================================
--- HANZ GUI - MODERN UI FRAMEWORK (UPDATE: SAVE/LOAD FAVORITES & CUSTOM MUSIC NAMES)
--- Fitur: Save Favorite Permanen, Custom TextBox, Green Play Button, No-Stuck Scroll
--- ==============================================================================
-
+-- LocalScript: LoadingGui.lua
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
+
+-- 1. Buat ScreenGui Utama
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "HanzLoadingGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- 2. Buat Background (Layar Gelap Transparan)
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(1, 0, 1, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+mainFrame.BackgroundTransparency = 0.15
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+
+-- 3. Judul "Hanz Music Loading...."
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "TitleLabel"
+titleLabel.Size = UDim2.new(0, 400, 0, 50)
+titleLabel.Position = UDim2.new(0.5, 0, 0.4, -30)
+titleLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Hanz Music Loading...."
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 28
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.Parent = mainFrame
+
+-- 4. Stiker Loading Berputar (Menggunakan ImageLabel)
+local spinner = Instance.new("ImageLabel")
+spinner.Name = "LoadingSpinner"
+spinner.Size = UDim2.new(0, 60, 0, 60)
+spinner.Position = UDim2.new(0.5, 0, 0.5, 30)
+spinner.AnchorPoint = Vector2.new(0.5, 0.5)
+spinner.BackgroundTransparency = 1
+-- ID Stiker/Ikon Spinner Roblox (Bisa diganti jika punya ID sendiri)
+spinner.Image = "rbxassetid://10141932378" 
+spinner.Parent = mainFrame
+
+----------------------------------------------------
+-- ANIMASI & LOGIKA WAKTU (3 DETIK)
+----------------------------------------------------
+
+-- Membuat Animasi Putaran 360 Derajat
+local tweenInfo = TweenInfo.new(
+	1,                          -- Waktu 1 putaran penuh (1 detik)
+	Enum.EasingStyle.Linear,     -- Kecepatan konstan
+	Enum.EasingDirection.InOut, 
+	-1                          -- Berulang terus menerus
+)
+
+local spinTween = TweenService:Create(spinner, tweenInfo, {Rotation = 360})
+spinTween:Play()
+
+-- Tunggu Selama 3 Detik
+task.wait(3)
+
+----------------------------------------------------
+-- SCRIPT BERIKUTNYA DIMALAI DI SINI
+----------------------------------------------------
+print("Loading Selesai! Menjalankan script berikutnya...")
+
+-- >>> Masukkan kode/fungsi kamu berikutnya di bawah baris ini <<<
+-- Contoh:
+-- require(game.ReplicatedStorage.MusicSystem):Start()
+
+
+----------------------------------------------------
+-- HAPUS GUI LOADING
+----------------------------------------------------
+-- Hapus GUI dengan efek pudar halus (Fade Out)
+local fadeInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local fadeTween = TweenService:Create(mainFrame, fadeInfo, {BackgroundTransparency = 1})
+local fadeText = TweenService:Create(titleLabel, fadeInfo, {TextTransparency = 1})
+local fadeSpinner = TweenService:Create(spinner, fadeInfo, {ImageTransparency = 1})
+
+fadeTween:Play()
+fadeText:Play()
+fadeSpinner:Play()
+
+fadeTween.Completed:Connect(function()
+	screenGui:Destroy() -- Menghapus GUI sepenuhnya dari game
+end)
+
+
+
+-- ==============================================================================
+-- HANZ GUI - MODERN UI FRAMEWORK (UPDATE: SAVE/LOAD FAVORITES & CUSTOM MUSIC NAMES)
+-- Fitur: Save Favorite Permanen, Custom TextBox, Green Play Button, No-Stuck Scroll
+-- ==============================================================================
 
 local Player = Players.LocalPlayer
 
