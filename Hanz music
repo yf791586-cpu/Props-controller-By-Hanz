@@ -632,7 +632,8 @@ local musicList = {
     {id = "72693126591985", name = "MBG-MAS-BAHLIL-GANTENG-FUNK-2"},
     {id = "128071048140468", name = "Natraa-Always-Loving-x-My-Neck"},
     {id = "127933835766961", name = "Natraa-Mix-2-FtFrezboy"},
-    {id = "125424755119611", name = "brisik"}
+    {id = "125424755119611", name = "brisik"},
+    {id = "124564676675935", name = "dj baru dora😂"}
 }
 
 for i, item in ipairs(musicList) do
