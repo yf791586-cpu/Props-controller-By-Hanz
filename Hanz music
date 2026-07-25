@@ -558,8 +558,6 @@ local musicList = {
     {id = "79928677555141", name = "NOTHING-BEATS-JET"},
     {id = "82426641996836", name = "Wo-De-Ge-Sheng-Li"},
     {id = "108945308421407", name = "DJ-Anu-Terindah"},
-    {id = "94133616443608", name = "Wicked-Dancing-Through-Life-Animation-Pa-Walk"},
-    {id = "79789194522561", name = "Wicked-Dancing-Through-Life-Animation-Pack-Run"},
     {id = "70633665224310", name = "TOR-MONITOR-GACOR-fyp"},
     {id = "95193214835257", name = "fear"},
     {id = "108092699453319", name = "Alone"},
@@ -581,7 +579,6 @@ local musicList = {
     {id = "116525313479094", name = "DJ-VACATION-KANEHOLIC"},
     {id = "112447571198662", name = "Menungso-Oratoto"},
     {id = "96077163288111", name = "Kita-Usahakan-Lagi"},
-    {id = "81917604745938", name = "Re"},
     {id = "84430849761882", name = "Music 89"},
     {id = "96815508293389", name = "Super-Tall-Blocky-Right-Leg"},
     {id = "121515016872144", name = "Super-Tall-Blocky-Left-Leg"},
@@ -633,7 +630,8 @@ local musicList = {
     {id = "128071048140468", name = "Natraa-Always-Loving-x-My-Neck"},
     {id = "127933835766961", name = "Natraa-Mix-2-FtFrezboy"},
     {id = "125424755119611", name = "brisik"},
-    {id = "124564676675935", name = "dj baru dora😂"}
+    {id = "124564676675935", name = "dj baru dora😂"},
+    {id = "108172611858503", name = "Funk AlquiMia"}
 }
 
 for i, item in ipairs(musicList) do
