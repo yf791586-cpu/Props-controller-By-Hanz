@@ -1,4 +1,6 @@
--- LocalScript: LoadingGui.lua
+-- ==============================================================================
+-- LOCAL SCRIPT: HANZ GUI WITH LOADING SCREEN
+-- ==============================================================================
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -6,11 +8,20 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 
--- 1. Buat ScreenGui Utama
+local Player = Players.LocalPlayer
+
+-- Hapus Loading GUI lama jika ada (Auto-Refresh)
+for _, gui in pairs(CoreGui:GetChildren()) do
+    if gui.Name == "HanzLoadingGui" then
+        gui:Destroy()
+    end
+end
+
+-- 1. Buat ScreenGui Utama (Diletakkan di CoreGui agar aman)
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "HanzLoadingGui"
 screenGui.ResetOnSpawn = false
-screenGui.Parent = playerGui
+screenGui.Parent = CoreGui -- [FIX] Mengubah playerGui menjadi CoreGui
 
 -- 2. Buat Background (Layar Gelap Transparan)
 local mainFrame = Instance.new("Frame")
@@ -41,7 +52,7 @@ spinner.Size = UDim2.new(0, 60, 0, 60)
 spinner.Position = UDim2.new(0.5, 0, 0.5, 30)
 spinner.AnchorPoint = Vector2.new(0.5, 0.5)
 spinner.BackgroundTransparency = 1
--- ID Stiker/Ikon Spinner Roblox (Bisa diganti jika punya ID sendiri)
+-- ID Stiker/Ikon Spinner Roblox 
 spinner.Image = "rbxassetid://10141932378" 
 spinner.Parent = mainFrame
 
@@ -64,24 +75,14 @@ spinTween:Play()
 task.wait(3)
 
 ----------------------------------------------------
--- SCRIPT BERIKUTNYA DIMALAI DI SINI
+-- SCRIPT BERIKUTNYA DIMULAI DI SINI
 ----------------------------------------------------
-print("Loading Selesai! Menjalankan script berikutnya...")
-
--- >>> Masukkan kode/fungsi kamu berikutnya di bawah baris ini <<<
--- Contoh:
--- require(game.ReplicatedStorage.MusicSystem):Start()
-
-
-
-
+print("Loading Selesai! Menjalankan HanzGui Modern...")
 
 -- ==============================================================================
 -- HANZ GUI - MODERN UI FRAMEWORK (UPDATE: SAVE/LOAD FAVORITES & CUSTOM MUSIC NAMES)
 -- Fitur: Save Favorite Permanen, Custom TextBox, Green Play Button, No-Stuck Scroll
 -- ==============================================================================
-
-local Player = Players.LocalPlayer
 
 -- Cek jika GUI sudah ada, hapus yang lama (Auto-Refresh)
 for _, gui in pairs(CoreGui:GetChildren()) do
@@ -155,24 +156,24 @@ BubbleStroke.Thickness = 2
 BubbleStroke.Transparency = 0.5
 BubbleStroke.Parent = Bubble
 
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Parent = HanzGui
-MainFrame.Size = UDim2.new(0, 500, 0, 300)
-MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.BackgroundColor3 = Theme.Background
-MainFrame.ClipsDescendants = true
-MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+local MainFrameUI = Instance.new("Frame") -- [FIX] Ganti nama jadi MainFrameUI agar tidak bentrok
+MainFrameUI.Name = "MainFrame"
+MainFrameUI.Parent = HanzGui
+MainFrameUI.Size = UDim2.new(0, 500, 0, 300)
+MainFrameUI.Position = UDim2.new(0.5, 0, 0.5, 0)
+MainFrameUI.BackgroundColor3 = Theme.Background
+MainFrameUI.ClipsDescendants = true
+MainFrameUI.AnchorPoint = Vector2.new(0.5, 0.5)
+Instance.new("UICorner", MainFrameUI).CornerRadius = UDim.new(0, 8)
 
 local MainStroke = Instance.new("UIStroke")
 MainStroke.Color = Theme.Accent
 MainStroke.Thickness = 1
-MainStroke.Parent = MainFrame
+MainStroke.Parent = MainFrameUI
 
 local Topbar = Instance.new("Frame")
 Topbar.Name = "Topbar"
-Topbar.Parent = MainFrame
+Topbar.Parent = MainFrameUI
 Topbar.Size = UDim2.new(1, 0, 0, 35)
 Topbar.BackgroundColor3 = Theme.Topbar
 Topbar.BorderSizePixel = 0
@@ -217,7 +218,7 @@ MinimizeBtn.TextSize = 18
 MinimizeBtn.Font = Enum.Font.GothamBold
 
 local Sidebar = Instance.new("Frame")
-Sidebar.Parent = MainFrame
+Sidebar.Parent = MainFrameUI
 Sidebar.Size = UDim2.new(0, 120, 1, -35)
 Sidebar.Position = UDim2.new(0, 0, 0, 35)
 Sidebar.BackgroundColor3 = Theme.Sidebar
@@ -235,7 +236,7 @@ SidebarPadding.PaddingLeft = UDim.new(0, 10)
 SidebarPadding.PaddingRight = UDim.new(0, 10)
 
 local ContentArea = Instance.new("Frame")
-ContentArea.Parent = MainFrame
+ContentArea.Parent = MainFrameUI
 ContentArea.Size = UDim2.new(1, -120, 1, -35)
 ContentArea.Position = UDim2.new(0, 120, 0, 35)
 ContentArea.BackgroundTransparency = 1
@@ -273,38 +274,38 @@ local function MakeDraggable(guiObject, handle)
     end)
 end
 
-MakeDraggable(MainFrame, Topbar)
+MakeDraggable(MainFrameUI, Topbar)
 MakeDraggable(Bubble, Bubble)
 
 -- ==========================================
 -- ANIMASI WINDOW
 -- ==========================================
-local tweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-MainFrame.Size = UDim2.new(0, 0, 0, 0)
-TweenService:Create(MainFrame, tweenInfo, {Size = UDim2.new(0, 500, 0, 300)}):Play()
+local windowTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+MainFrameUI.Size = UDim2.new(0, 0, 0, 0)
+TweenService:Create(MainFrameUI, windowTweenInfo, {Size = UDim2.new(0, 500, 0, 300)}):Play()
 
 CloseBtn.MouseButton1Click:Connect(function()
-    local closeAnim = TweenService:Create(MainFrame, tweenInfo, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
+    local closeAnim = TweenService:Create(MainFrameUI, windowTweenInfo, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
     closeAnim:Play()
     closeAnim.Completed:Wait()
     HanzGui:Destroy()
 end)
 
 MinimizeBtn.MouseButton1Click:Connect(function()
-    TweenService:Create(MainFrame, tweenInfo, {Size = UDim2.new(0, 0, 0, 0)}):Play()
+    TweenService:Create(MainFrameUI, windowTweenInfo, {Size = UDim2.new(0, 0, 0, 0)}):Play()
     task.wait(0.2)
-    MainFrame.Visible = false
+    MainFrameUI.Visible = false
     Bubble.Visible = true
-    TweenService:Create(Bubble, tweenInfo, {Size = UDim2.new(0, 50, 0, 50)}):Play()
+    TweenService:Create(Bubble, windowTweenInfo, {Size = UDim2.new(0, 50, 0, 50)}):Play()
 end)
 
 Bubble.MouseButton1Click:Connect(function()
-    local hideBubble = TweenService:Create(Bubble, tweenInfo, {Size = UDim2.new(0, 0, 0, 0)})
+    local hideBubble = TweenService:Create(Bubble, windowTweenInfo, {Size = UDim2.new(0, 0, 0, 0)})
     hideBubble:Play()
     hideBubble.Completed:Wait()
     Bubble.Visible = false
-    MainFrame.Visible = true
-    TweenService:Create(MainFrame, tweenInfo, {Size = UDim2.new(0, 500, 0, 300)}):Play()
+    MainFrameUI.Visible = true
+    TweenService:Create(MainFrameUI, windowTweenInfo, {Size = UDim2.new(0, 500, 0, 300)}):Play()
 end)
 
 local function ApplyHover(btn, hoverColor)
@@ -562,7 +563,7 @@ TabHome:CreateButton("DeleteBoard❌", function()
 end, Color3.fromRGB(231, 76, 60))
 
 -- ==========================================
--- ISI TAB: MUSIC ID (SESUAI JUDUL DARI LINK)
+-- ISI TAB: MUSIC ID
 -- ==========================================
 local musicList = {
     {id = "104207837699519", name = "Tabola-Bale"},
@@ -717,9 +718,8 @@ for i, item in ipairs(musicList) do
 end
 
 ----------------------------------------------------
--- HAPUS GUI LOADING
+-- HAPUS GUI LOADING (EFEK PUDAR SETELAH MAIN GUI MUNCUL)
 ----------------------------------------------------
--- Hapus GUI dengan efek pudar halus (Fade Out)
 local fadeInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local fadeTween = TweenService:Create(mainFrame, fadeInfo, {BackgroundTransparency = 1})
 local fadeText = TweenService:Create(titleLabel, fadeInfo, {TextTransparency = 1})
@@ -730,5 +730,5 @@ fadeText:Play()
 fadeSpinner:Play()
 
 fadeTween.Completed:Connect(function()
-	screenGui:Destroy() -- Menghapus GUI sepenuhnya dari game
+	screenGui:Destroy() -- Menghapus Loading GUI sepenuhnya dari game
 end)
