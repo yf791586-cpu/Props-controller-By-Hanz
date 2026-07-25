@@ -600,8 +600,6 @@ local musicList = {
     {id = "136276875045281", name = "Popular-Run"},
     {id = "111223578136200", name = "Always-Loving-You-DJ-PayXDeFit"},
     {id = "119037495327681", name = "ปาจก-TEAM-MPB"},
-    {id = "70582373853805", name = "Plush-Chibi-Bunny-Right-Leg"},
-    {id = "70380761114055", name = "Plush-Chibi-Bunny-Left-Leg"},
     {id = "127882927724797", name = "CURI-CURI-PANDANG-HolyCipaa"},
     {id = "140638998570396", name = "DJ-MARI-YETY-MARI-YO-JJ-MENGKANE-ULTRA-REVERB"},
     {id = "77222785479261", name = "SIKSA-MENANGGUNG-RINDU-SEMUA-SIA-SIA"},
@@ -631,7 +629,8 @@ local musicList = {
     {id = "127933835766961", name = "Natraa-Mix-2-FtFrezboy"},
     {id = "125424755119611", name = "brisik"},
     {id = "124564676675935", name = "dj baru dora😂"},
-    {id = "108172611858503", name = "Funk AlquiMia"}
+    {id = "108172611858503", name = "Funk AlquiMia"},
+    {id = "95827485337717", name = "Pink Dream Forever (HardStyle)"}
 }
 
 for i, item in ipairs(musicList) do
