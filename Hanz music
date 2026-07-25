@@ -73,22 +73,6 @@ print("Loading Selesai! Menjalankan script berikutnya...")
 -- require(game.ReplicatedStorage.MusicSystem):Start()
 
 
-----------------------------------------------------
--- HAPUS GUI LOADING
-----------------------------------------------------
--- Hapus GUI dengan efek pudar halus (Fade Out)
-local fadeInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-local fadeTween = TweenService:Create(mainFrame, fadeInfo, {BackgroundTransparency = 1})
-local fadeText = TweenService:Create(titleLabel, fadeInfo, {TextTransparency = 1})
-local fadeSpinner = TweenService:Create(spinner, fadeInfo, {ImageTransparency = 1})
-
-fadeTween:Play()
-fadeText:Play()
-fadeSpinner:Play()
-
-fadeTween.Completed:Connect(function()
-	screenGui:Destroy() -- Menghapus GUI sepenuhnya dari game
-end)
 
 
 
@@ -731,3 +715,20 @@ for i, item in ipairs(musicList) do
         end
     end, TabFavorite)
 end
+
+----------------------------------------------------
+-- HAPUS GUI LOADING
+----------------------------------------------------
+-- Hapus GUI dengan efek pudar halus (Fade Out)
+local fadeInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local fadeTween = TweenService:Create(mainFrame, fadeInfo, {BackgroundTransparency = 1})
+local fadeText = TweenService:Create(titleLabel, fadeInfo, {TextTransparency = 1})
+local fadeSpinner = TweenService:Create(spinner, fadeInfo, {ImageTransparency = 1})
+
+fadeTween:Play()
+fadeText:Play()
+fadeSpinner:Play()
+
+fadeTween.Completed:Connect(function()
+	screenGui:Destroy() -- Menghapus GUI sepenuhnya dari game
+end)
