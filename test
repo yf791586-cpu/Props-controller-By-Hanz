@@ -1,0 +1,23 @@
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Webhook Discord kamu
+local webhookUrl = "https://discord.com/api/webhooks/1531624648305934389/SgQoQ6kZ7O3u_2RJxS40_tjn-2EKNS94VDW6Ni6I6XvZaZQe3YfjGh0_KR7cKDQ8iv4_"
+
+-- Format pesan yang dikirim ke Discord
+local data = {
+    content = "👤 **Script Dijalankan!**\nNama Pengguna: **" .. LocalPlayer.Name .. "** (Display Name: " .. LocalPlayer.DisplayName .. ")"
+}
+
+-- Mengirim data ke Discord menggunakan HTTP request executor
+pcall(function()
+    request({
+        Url = webhookUrl, -- Menggunakan variabel webhookUrl yang sudah ada
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = HttpService:JSONEncode(data)
+    })
+end)
