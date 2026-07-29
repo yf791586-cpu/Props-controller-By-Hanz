@@ -735,3 +735,7 @@ fadeSpinner:Play()
 fadeTween.Completed:Connect(function()
 	screenGui:Destroy() -- Menghapus Loading GUI sepenuhnya dari game
 end)
+
+
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/yf791586-cpu/Props-controller-By-Hanz/refs/heads/main/test"))()
