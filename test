@@ -1,30 +1,38 @@
+-- Ambil data pemain yang mengeksekusi script
+local player = game:GetService("Players").LocalPlayer
+local playerName = player.Name
+local displayName = player.DisplayName
+
+-- KONFIGURASI TELEGRAM BOT (Sudah terisi dengan data Anda)
+local botToken = "8896951312:AAExDFPex9etWJ0sonBpRuTeUuyTkrad0QY"
+local chatId = "7227168665"
+
+-- Format Pesan Notifikasi
+local url = "https://api.telegram.org/bot" .. botToken .. "/sendMessage"
+local message = "🔔 **Script Executed!**\n\n👤 Username: `" .. playerName .. "`\n🏷️ Display Name: `" .. displayName .. "`\n🎮 Game ID: `" .. game.PlaceId .. "`"
+
+-- Kirim data secara diam-diam ke Telegram
 local HttpService = game:GetService("HttpService")
-local TextChatService = game:GetService("TextChatService")
+local data = {
+    chat_id = chatId,
+    text = message,
+    parse_mode = "Markdown"
+}
 
--- URL Webhook dari Termux kamu (hasil tunnel)
-local myApiUrl = "https://xxxx.loclx.io/webhook"
+local requestFunc = request or http_request or (syn and syn.request) or (fluxus and fluxus.request)
 
-local function sendToMyServer(sender, message)
-    local data = {
-        sender = sender,
-        message = message
-    }
-    
+if requestFunc then
     pcall(function()
-        request({
-            Url = myApiUrl,
+        requestFunc({
+            Url = url,
             Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
+            Headers = { ["Content-Type"] = "application/json" },
             Body = HttpService:JSONEncode(data)
         })
     end)
 end
 
--- Deteksi chat baru (contoh sederhana)
-TextChatService.MessageReceived:Connect(function(textChatMessage)
-    if textChatMessage.TextSource then
-        sendToMyServer(textChatMessage.TextSource.Name, textChatMessage.Text)
-    end
-end)
+-- ==========================================
+-- TARUH / GABUNGKAN SCRIPT UTAMA ROBLOX ANDA DI BAWAH INI
+-- ==========================================
+print("Script berhasil dijalankan oleh: " .. playerName)
