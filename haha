@@ -1,0 +1,32 @@
+-- Mendapatkan pemain lokal (LocalPlayer)
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Membuat wadah UI (ScreenGui)
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "TopTextGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- Membuat TextLabel
+local textLabel = Instance.new("TextLabel")
+textLabel.Name = "TopLabel"
+textLabel.Parent = screenGui
+
+-- Mengatur Posisi dan Ukuran (Pas di atas tengah layar)
+textLabel.AnchorPoint = Vector2.new(0.5, 0)
+textLabel.Position = UDim2.new(0.5, 0, 0, 20)
+textLabel.Size = UDim2.new(0, 400, 0, 50)
+
+-- Membuat Latar Belakang Transparan Sepenuhnya
+textLabel.BackgroundTransparency = 1 
+
+-- Mengatur Tampilan Teks
+textLabel.Text = "lagi ngapain cik"
+textLabel.TextScaled = true
+textLabel.Font = Enum.Font.GothamBold
+textLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Warna teks putih
+
+-- Menambahkan Garis Luar (Outline) agar teks mudah dibaca
+textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0) -- Outline hitam
+textLabel.TextStrokeTransparency = 0 -- Outline terlihat sepenuhnya (0 = tidak transparan)
