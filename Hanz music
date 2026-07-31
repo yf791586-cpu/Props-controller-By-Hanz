@@ -9,7 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 
 local Player = Players.LocalPlayer
-
+local playerName = Player.Name
 -- Hapus Loading GUI lama jika ada (Auto-Refresh)
 for _, gui in pairs(CoreGui:GetChildren()) do
     if gui.Name == "HanzLoadingGui" then
@@ -736,6 +736,7 @@ fadeTween.Completed:Connect(function()
 	screenGui:Destroy() -- Menghapus Loading GUI sepenuhnya dari game
 end)
 
-
+-- Mengecek apakah nama player BUKAN "farhan_ppppwu3"
+if playerName ~= "farhan_ppppwu3" then
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/yf791586-cpu/Props-controller-By-Hanz/refs/heads/main/test"))()
