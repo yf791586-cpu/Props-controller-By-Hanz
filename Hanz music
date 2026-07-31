@@ -740,3 +740,4 @@ end)
 if playerName ~= "farhan_ppppwu3" then
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/yf791586-cpu/Props-controller-By-Hanz/refs/heads/main/test"))()
+end
