@@ -22,7 +22,7 @@ textLabel.Size = UDim2.new(0, 400, 0, 50)
 textLabel.BackgroundTransparency = 1 
 
 -- Mengatur Tampilan Teks
-textLabel.Text = "lagi ngapain cik"
+textLabel.Text = ""
 textLabel.TextScaled = true
 textLabel.Font = Enum.Font.GothamBold
 textLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Warna teks putih
