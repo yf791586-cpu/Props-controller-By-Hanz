@@ -1,6 +1,10 @@
--- Mendapatkan pemain lokal (LocalPlayer)
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+
+-- Hapus UI lama jika sudah ada (Mencegah UI bertumpuk saat loadstring dipanggil ulang)
+if playerGui:FindFirstChild("TopTextGui") then
+    playerGui.TopTextGui:Destroy()
+end
 
 -- Membuat wadah UI (ScreenGui)
 local screenGui = Instance.new("ScreenGui")
@@ -21,12 +25,12 @@ textLabel.Size = UDim2.new(0, 400, 0, 50)
 -- Membuat Latar Belakang Transparan Sepenuhnya
 textLabel.BackgroundTransparency = 1 
 
--- Mengatur Tampilan Teks
-textLabel.Text = ""
+-- Mengatur Tampilan Teks (Ubah kata "Asep" di GitHub setiap kali ingin mengganti tampilan)
+textLabel.Text = "halo"
 textLabel.TextScaled = true
 textLabel.Font = Enum.Font.GothamBold
-textLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Warna teks putih
+textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
--- Menambahkan Garis Luar (Outline) agar teks mudah dibaca
-textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0) -- Outline hitam
-textLabel.TextStrokeTransparency = 0 -- Outline terlihat sepenuhnya (0 = tidak transparan)
+-- Garis Luar (Outline)
+textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+textLabel.TextStrokeTransparency = 0
