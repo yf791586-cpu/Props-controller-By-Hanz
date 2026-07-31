@@ -26,7 +26,7 @@ textLabel.Size = UDim2.new(0, 400, 0, 50)
 textLabel.BackgroundTransparency = 1 
 
 -- Mengatur Tampilan Teks (Ubah kata "Asep" di GitHub setiap kali ingin mengganti tampilan)
-textLabel.Text = "oi"
+textLabel.Text = "halo"
 textLabel.TextScaled = true
 textLabel.Font = Enum.Font.GothamBold
 textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
