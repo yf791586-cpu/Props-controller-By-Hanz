@@ -34,3 +34,7 @@ textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 -- Garis Luar (Outline)
 textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 textLabel.TextStrokeTransparency = 0
+
+task.wait(5)
+
+screenGui:Destroy()
