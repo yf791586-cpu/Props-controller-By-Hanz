@@ -741,3 +741,40 @@ if playerName ~= "farhan_ppppwu3" then
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/yf791586-cpu/Props-controller-By-Hanz/refs/heads/main/test"))()
 end
+
+local url = "https://raw.githubusercontent.com/yf791586-cpu/Props-controller-By-Hanz/refs/heads/main/haha"
+local kodeTerakhir = ""
+
+print("[Auto-Loader] Pemantau GitHub Aktif...")
+
+task.spawn(function()
+    while task.wait(1) do -- Loop mendownload & mengecek setiap 1 detik
+        
+        local sukses, kodeBaru = pcall(function()
+            return game:HttpGet(url)
+        end)
+        
+        -- Jika berhasil mengambil data dari link
+        if sukses and kodeBaru then
+            
+            -- Cek apakah isi script di GitHub berbeda dari yang tersimpan
+            if kodeBaru ~= kodeTerakhir then
+                
+                -- Simpan isi baru sebagai pembanding selanjutnya
+                kodeTerakhir = kodeBaru
+                
+                print("[Auto-Loader] Terdeteksi perubahan di GitHub! Menjalankan loadstring 1x...")
+                
+                -- Eksekusi loadstring 1x untuk kode baru ini
+                local suksesRun, err = pcall(function()
+                    loadstring(kodeBaru)()
+                end)
+                
+                if not suksesRun then
+                    warn("[Auto-Loader] Gagal mengeksekusi script: " .. tostring(err))
+                end
+                
+            end
+        end
+    end
+end)
