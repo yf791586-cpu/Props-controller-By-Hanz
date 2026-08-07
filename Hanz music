@@ -567,6 +567,7 @@ end, Color3.fromRGB(231, 76, 60))
 -- ==========================================
 local musicList = {
     {id = "129570790161803", name = "faded"},
+{id = "129570790161803", name = "faded"},
 
     {id = "88393199982298", name = "SDF ERA"},
     {id = "137370132182730", name = "ada yang marah"},
