@@ -566,7 +566,8 @@ end, Color3.fromRGB(231, 76, 60))
 -- ISI TAB: MUSIC ID
 -- ==========================================
 local musicList = {
-    {id = "137370132182730", name = "ada yang marah"},
+    {id = "79257634073727", name = "Jedag jedug Style candu"},
+{id = "137370132182730", name = "ada yang marah"},
 {id = "88393199982298", name = "SDF ERA"},
 {id = "124844852560730", name = "Beauty and a beat"},
 {id = "104207837699519", name = "Tabola-Bale"},
