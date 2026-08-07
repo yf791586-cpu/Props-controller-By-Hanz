@@ -481,25 +481,25 @@ local function CreateTab(tabName)
         local favButtonRef = nil
 
         if isFav then
-            HeartBtn.Text = "âŒ"
+            HeartBtn.Text = "❌"
             if targetFavTab then
                 favButtonRef = targetFavTab:CreateButton(btnText, callback)
             end
         else
-            HeartBtn.Text = "â¤ï¸"
+            HeartBtn.Text = "❤️"
         end
 
         HeartBtn.MouseButton1Click:Connect(function()
             isFav = not isFav
             if isFav then
-                HeartBtn.Text = "âŒ"
+                HeartBtn.Text = "❌"
                 SavedFavorites[musicId] = true
                 SaveFavoritesToFile()
                 if targetFavTab then
                     favButtonRef = targetFavTab:CreateButton(btnText, callback)
                 end
             else
-                HeartBtn.Text = "â¤ï¸"
+                HeartBtn.Text = "❤️"
                 SavedFavorites[musicId] = nil
                 SaveFavoritesToFile()
                 if favButtonRef then
@@ -529,7 +529,7 @@ local TabFavorite = CreateTab("Favorite")
 
 local InputMusicID = TabHome:CreateTextBox("Input Music ID Manual...")
 
-TabHome:CreateButton("â–¶ Play Music", function()
+TabHome:CreateButton("▶ Play Music", function()
     local idToPlay = InputMusicID.Text
     idToPlay = string.match(idToPlay, "^%s*(.-)%s*$")
     
@@ -555,7 +555,7 @@ TabHome:CreateButton("HeavyBoard", function()
     end
 end)
 
-TabHome:CreateButton("DeleteBoardâŒ", function()
+TabHome:CreateButton("DeleteBoard❌", function()
     local Event = ReplicatedStorage:FindFirstChild("RE")
     if Event and Event:FindFirstChild("1NoMoto1rVehicle1s") then
         Event["1NoMoto1rVehicle1s"]:FireServer("Delete NoMotorVehicle")
@@ -566,12 +566,6 @@ end, Color3.fromRGB(231, 76, 60))
 -- ISI TAB: MUSIC ID
 -- ==========================================
 local musicList = {
-    {id = "129570790161803", name = "Faded"},
-    {id = "88393199982298", name = "SDF ERA"},
-    {id = "137370132182730", name = "ada yang marah"},
-    {id = "79257634073727", name = "Jedag jedug Style candu"},
-    {id = "71081898119547", name = "Alone"},
-    {id = "124844852560730", name = "Beauty and a beat"},
     {id = "104207837699519", name = "Tabola-Bale"},
     {id = "96077163288111", name = "Kita-Usahakan-Lagi"},
     {id = "103947648413202", name = "DJ-Kajol-Cantik"},
@@ -604,33 +598,33 @@ local musicList = {
     {id = "119254319180287", name = "AKU-DONG"},
     {id = "140380438039459", name = "enak"},
     {id = "102691597341093", name = "we-be-burn"},
-    {id = "135473905127296", name = "50à¹€à¸›à¸­à¹€à¸‹à¸™"},
-    {id = "124327505221192", name = "à¹„à¸”à¸ªà¸"},
-    {id = "129988226070628", name = "à¸žà¸™à¸•à¸•"},
-    {id = "128153179827416", name = "à¸§à¸™à¸™à¸²"},
-    {id = "78596441510872", name = "à¸‹à¹€à¸›à¸­à¹€à¸šà¸ªà¸ª"},
-    {id = "74758860515324", name = "à¸­à¸™à¸¢à¸§à¸­à¸²à¸²à¸²à¸¢à¸­"},
-    {id = "139590201617508", name = "à¸„à¸žà¹‚à¸‹à¸¥à¸²"},
-    {id = "94403836240383", name = "à¸¥à¸­à¸ª-à¸„à¸­à¸™à¹‚à¸—à¸£à¸¥"},
+    {id = "135473905127296", name = "50เปอเซน"},
+    {id = "124327505221192", name = "ไดสก"},
+    {id = "129988226070628", name = "พนตต"},
+    {id = "128153179827416", name = "วนนา"},
+    {id = "78596441510872", name = "ซเปอเบสส"},
+    {id = "74758860515324", name = "อนยวอาาายอ"},
+    {id = "139590201617508", name = "คพโซลา"},
+    {id = "94403836240383", name = "ลอส-คอนโทรล"},
     {id = "94677274916350", name = "EENIE-MEENIE-x-DANZA-KUDURO"},
     {id = "130721206402716", name = "KAMNH-VELOCITY-RD-VERSI-2025"},
-    {id = "79487691695967", name = "CorazÃ³n-Esmeralda-Slowed"},
+    {id = "79487691695967", name = "Corazón-Esmeralda-Slowed"},
     {id = "135454681412242", name = "KOREAN-PIGEON-FUNK-SUPER-SLOWED"},
     {id = "116919531808240", name = "4_7K-FUNK-SUPER-SLOWED"},
     {id = "84375376949847", name = "MONTAGEM-IMPARABLE-Ultra-Slowed"},
     {id = "99518929868012", name = "Gym-Mockingbird-Remix"},
     {id = "130132238955126", name = "THE-LAST-SAHUR"},
-    {id = "104206090255438", name = "à¸­à¸­à¸­à¸²-à¹à¸¡à¸§à¸«à¸¡à¸™"},
-    {id = "114128715751316", name = "zombie-à¸«à¸¡à¸­à¸¥à¸³à¹à¸”à¸™à¸‹"},
+    {id = "104206090255438", name = "อออา-แมวหมน"},
+    {id = "114128715751316", name = "zombie-หมอลำแดนซ"},
     {id = "125014875225876", name = "ALONE"},
-    {id = "119341948158777", name = "Mang-Chá»§ng-à¸«à¸¡à¸­à¸¥à¸³"},
+    {id = "119341948158777", name = "Mang-Chủng-หมอลำ"},
     {id = "100991657598498", name = "Lollipop"},
-    {id = "123418190503573", name = "à¸•à¸²à¸¡à¸ˆà¸‡à¸«à¸§à¸°"},
-    {id = "107341259483191", name = "Love-Story-à¹à¸”à¸™à¸‹"},
+    {id = "123418190503573", name = "ตามจงหวะ"},
+    {id = "107341259483191", name = "Love-Story-แดนซ"},
     {id = "123800281319097", name = "Phut-Hon"},
     {id = "84465860347641", name = "comethru-eiei"},
     {id = "107640531223957", name = "Music 58"},
-    {id = "107640531223975", name = "Stereo-Love-à¹à¸”à¸™à¸‹"},
+    {id = "107640531223975", name = "Stereo-Love-แดนซ"},
     {id = "97785104909396", name = "ARIA"},
     {id = "81122165966323", name = "MENDISCO"},
     {id = "79928677555141", name = "NOTHING-BEATS-JET"},
@@ -641,18 +635,18 @@ local musicList = {
     {id = "108092699453319", name = "Alone"},
     {id = "119822943881590", name = "HABIBI"},
     {id = "115492336583856", name = "cheap-thrills-888"},
-    {id = "107887768910692", name = "Summertime-Sadness-à¹à¸”à¸™à¸‹"},
-    {id = "109149632133821", name = "Dj-Alone-Ranto-Gudel-à¹à¸”à¸™à¸‹"},
-    {id = "104177688386014", name = "Feel-Only-Love-à¹à¸”à¸™à¸‹"},
-    {id = "77759116439066", name = "Ya-Odna-à¹à¸”à¸™à¸‹"},
+    {id = "107887768910692", name = "Summertime-Sadness-แดนซ"},
+    {id = "109149632133821", name = "Dj-Alone-Ranto-Gudel-แดนซ"},
+    {id = "104177688386014", name = "Feel-Only-Love-แดนซ"},
+    {id = "77759116439066", name = "Ya-Odna-แดนซ"},
     {id = "72123236359982", name = "Where-Have-You-Been"},
     {id = "136390616280021", name = "play-plat"},
     {id = "103149678972610", name = "SadTtt1234"},
     {id = "83955529112875", name = "DJ-WHERE-HAVE-YOU-BEEN-X-STEREO-LOVE-SLOW"},
     {id = "122283659725483", name = "Yank-Asik-Banget"},
-    {id = "94403836240383", name = "à¸¥à¸­à¸ª-à¸„à¸­à¸™à¹‚à¸—à¸£à¸¥"},
+    {id = "94403836240383", name = "ลอส-คอนโทรล"},
     {id = "91253824604131", name = "Wanderer-Enhanced"},
-    {id = "109207776495692", name = "MÃ¡gico-3-by-Draax"},
+    {id = "109207776495692", name = "Mágico-3-by-Draax"},
     {id = "71352440268880", name = "DJ-BUKAN-SULAP-BUKAN-SIHIR-SPONTAN"},
     {id = "116525313479094", name = "DJ-VACATION-KANEHOLIC"},
     {id = "112447571198662", name = "Menungso-Oratoto"},
@@ -667,8 +661,8 @@ local musicList = {
     {id = "82219139681769", name = "Amazon-Unboxed-Animation-Pack-Idle"},
     {id = "76596803175980", name = "DJ-JAUHKAU-PERGI"},
     {id = "132970474436648", name = "DJ-CONCRETE-ANGEL-MENGKANE"},
-    {id = "75038580640135", name = "à¹à¸šà¸°à¹à¸šà¸°à¹à¸šà¸°"},
-    {id = "125902207303673", name = "à¸­à¹€à¸„à¹€à¸Ÿà¸£à¸­"},
+    {id = "75038580640135", name = "แบะแบะแบะ"},
+    {id = "125902207303673", name = "อเคเฟรอ"},
     {id = "70583524630795", name = "secepat-kilat"},
     {id = "108790892752137", name = "tes-kriuk-1"},
     {id = "74566452986791", name = "coba-dulu-v2"},
@@ -677,7 +671,7 @@ local musicList = {
     {id = "101839542383818", name = "Popular-Idle"},
     {id = "136276875045281", name = "Popular-Run"},
     {id = "111223578136200", name = "Always-Loving-You-DJ-PayXDeFit"},
-    {id = "119037495327681", name = "à¸›à¸²à¸ˆà¸-TEAM-MPB"},
+    {id = "119037495327681", name = "ปาจก-TEAM-MPB"},
     {id = "127882927724797", name = "CURI-CURI-PANDANG-HolyCipaa"},
     {id = "140638998570396", name = "DJ-MARI-YETY-MARI-YO-JJ-MENGKANE-ULTRA-REVERB"},
     {id = "77222785479261", name = "SIKSA-MENANGGUNG-RINDU-SEMUA-SIA-SIA"},
@@ -685,7 +679,7 @@ local musicList = {
     {id = "76748469568032", name = "Natraa-Get-Party-Started-x-Takutu-kutu"},
     {id = "117487437387749", name = "Berlyn-Mix-Angkot"},
     {id = "86322376706738", name = "Slaughter"},
-    {id = "72713192744393", name = "à¹€à¸žà¸¥à¸‡à¹à¸ˆà¸à¸Ÿà¸£à¹„à¸¡à¹„à¸”à¸‚à¸²à¸¢à¸™à¸°à¸ˆà¸°"},
+    {id = "72713192744393", name = "เพลงแจกฟรไมไดขายนะจะ"},
     {id = "109337680029292", name = "Japan"},
     {id = "87312816877286", name = "JINWOO-Jangan-Ganggu-Pacarku-MIX-By-Schatzi"},
     {id = "92615700565043", name = "DJ-Out-of-love"},
