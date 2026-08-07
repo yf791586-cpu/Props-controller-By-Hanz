@@ -835,6 +835,8 @@ PagiRow, PageLbl = TabSearch:CreatePaginationControls(KeHalamanSebelumnya, KeHal
 -- ISI TAB: MUSIC ID
 -- ==========================================
 local musicList = {
+    {id = "129570790161803", name = "faded"},
+
     {id = "129570790161803", name = "Faded"},
 
     {id = "88393199982298", name = "SDF ERA"},
