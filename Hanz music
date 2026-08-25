@@ -716,7 +716,27 @@ local musicList = {
     {id = "133862055584202", name = "Rindu aku rindu(dj)"},
     {id = "75537083584377", name = "Asow Funk"},
     {id = "117892249308144", name = "dj Disco Poci"},
-    {id = "102206403077325", name = "Ga tau judulnya"}
+    {id = "102206403077325", name = "Ga tau judulnya"},
+{id = "72176107596923", name = "VIVIN-I-Bercanda"},
+{id = "127933835766961", name = "Natraa-Mix-2-Ft-Frezboy"},
+{id = "80810879447131", name = "JB-mix"},
+{id = "127124715316926", name = "Paper-Moon"},
+{id = "86316862829978", name = "DEAR-GOD-COUNTRY-VIBES"},
+{id = "74428516754430", name = "Toy"},
+{id = "118736229530151", name = "DJ-KAU-MUNGKIN-SUKA-FYP"},
+{id = "116647235474599", name = "Tantae"},
+{id = "110337096446518", name = "ONIA"},
+{id = "103442130451244", name = "seLoraini-PICA-PICA-SAYANG-EE"},
+{id = "128990882073597", name = "CELAWZE-I-PACARKU-YANG-BAIK"},
+{id = "107414505504369", name = "ICHKEY-I-BINTANG-LIMA-x-BABY-BY-ME"},
+{id = "110839312239968", name = "JEALOUSY-SETUYLL"},
+{id = "117020806574845", name = "Main-Serong"},
+{id = "71382679424973", name = "Rindu-Selaman-INDO-SESSION-4"},
+{id = "78232989299593", name = "PAPA-PULANG-MAMA-GOYANG"},
+{id = "83530950856393", name = "Natraa-Gabe-2"},
+{id = "112447571198662", name = "Menungso-Oratoto"},
+{id = "121621468837938", name = "ELSY-Jandong"},
+{id = "72261803135473", name = "AYNA-n-RIKU-GELENG-JAMET-ABADI"}
 }
 
 for i, item in ipairs(musicList) do
