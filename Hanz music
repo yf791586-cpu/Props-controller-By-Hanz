@@ -740,6 +740,7 @@ local musicList = {
     {id = "11083931223", name = "Beach-Small-Chest"},
     {id = "122084395776372", name = "SESI-POTRET-TROV"},
     {id = "133179214676469", name = "NathanALF-Meii-Zumiza-Pikipiki"},
+    {id = "119277536521817", name = "DJ-HELIKOPTER-TURUN-DI-PADANG-VIRAL-TIKTO"},
     -- [BOT_INSERT_HERE]
 }
 
