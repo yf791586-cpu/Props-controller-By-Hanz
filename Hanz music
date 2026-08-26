@@ -743,6 +743,7 @@ local musicList = {
     {id = "119277536521817", name = "DJ-HELIKOPTER-TURUN-DI-PADANG-VIRAL-TIKTO"},
     {id = "75546192264447", name = "ICHKEY-I-Chai4PH-x-Clarity-Love-Me-Not"},
     {id = "139381756116650", name = "ASTAGA-TROV-BERCANDA"},
+    {id = "116571091072402", name = "RayyMis7343"},
     -- [BOT_INSERT_HERE]
 }
 
