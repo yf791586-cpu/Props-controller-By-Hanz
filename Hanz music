@@ -736,8 +736,10 @@ local musicList = {
 {id = "83530950856393", name = "Natraa-Gabe-2"},
 {id = "112447571198662", name = "Menungso-Oratoto"},
 {id = "121621468837938", name = "ELSY-Jandong"},
-{id = "72261803135473", name = "AYNA-n-RIKU-GELENG-JAMET-ABADI"}
+{id = "72261803135473", name = "AYNA-n-RIKU-GELENG-JAMET-ABADI"},
+    -- [BOT_INSERT_HERE]
 }
+
 
 for i, item in ipairs(musicList) do
     local buttonTitle = tostring(i) .. ". " .. item.name
