@@ -751,6 +751,7 @@ local musicList = {
     {id = "115037829965347", name = "DJ-BATTLE-PERDAMAIAN-YANG-DI-PAKAI-BP-AUDIO"},
     {id = "91630275902282", name = "DJ-BETTEL-TUTUK-PANCI-TJAP-RADAR-KAPAL"},
     {id = "137339157733851", name = "Dj-lali-judul"},
+    {id = "118766956633455", name = "DJ-FUNKOT-UWIR-UWIR-MIDLE-NGAWURBATLE"},
     -- [BOT_INSERT_HERE]
 }
 
