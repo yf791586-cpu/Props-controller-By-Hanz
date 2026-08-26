@@ -737,6 +737,7 @@ local musicList = {
 {id = "112447571198662", name = "Menungso-Oratoto"},
 {id = "121621468837938", name = "ELSY-Jandong"},
 {id = "72261803135473", name = "AYNA-n-RIKU-GELENG-JAMET-ABADI"},
+    {id = "11083931223", name = "Beach-Small-Chest"},
     -- [BOT_INSERT_HERE]
 }
 
