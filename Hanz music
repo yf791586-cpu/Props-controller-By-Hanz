@@ -569,6 +569,24 @@ local musicList = {
 {id = "9984789656571", name = "phonk"},
 {id = "77063870786604", name = "Chinese"},
 {id = "116704489332329", name = "Verity"},
+    ,
+    {id = "126759956586913", name = "Where-You-Are"},
+    {id = "107082200998987", name = "Lily"},
+    {id = "71081898119547", name = "Ronaldo-7"},
+    {id = "79257634073727", name = "Melody-jedag-jedug-style-candu"},
+    {id = "137370132182730", name = "Ada-Yang-Marah"},
+    {id = "88393199982298", name = "YQueFue-SDF-ERA-14"},
+    {id = "124844852560730", name = "Beauty-And-A-Beat-DJ-MANGO"},
+    {id = "104207837699519", name = "Tabola-Bale"},
+    {id = "96077163288111", name = "Kita-Usahakan-Lagi"},
+    {id = "103947648413202", name = "DJ-Kajol-Cantik"},
+    {id = "100787734732008", name = "Aku-Suka-Jedag-Jedug-Full-Bass"},
+    {id = "85427648559465", name = "DJ-Phut-Hon-Indo-Full-Bass"},
+    {id = "91089804280618", name = "Suka-Suka-Bahagia-Enak-Enak"},
+    {id = "101824470324116", name = "Boomshakalakaboom"},
+    {id = "79073283903510", name = "Joget-Lalalala"},
+    {id = "117319879647586", name = "Kick-It"},
+    {id = "77533933904801", name = "Coba-Coba"}
     -- [BOT_INSERT_HERE]
 }
 
