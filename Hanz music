@@ -569,7 +569,6 @@ local musicList = {
 {id = "9984789656571", name = "phonk"},
 {id = "77063870786604", name = "Chinese"},
 {id = "116704489332329", name = "Verity"},
-    ,
     {id = "126759956586913", name = "Where-You-Are"},
     {id = "107082200998987", name = "Lily"},
     {id = "71081898119547", name = "Ronaldo-7"},
@@ -586,8 +585,7 @@ local musicList = {
     {id = "101824470324116", name = "Boomshakalakaboom"},
     {id = "79073283903510", name = "Joget-Lalalala"},
     {id = "117319879647586", name = "Kick-It"},
-    {id = "77533933904801", name = "Coba-Coba"}
-    ,
+    {id = "77533933904801", name = "Coba-Coba"},
     {id = "122389825417820", name = "Moonlighthood"},
     {id = "116647235474599", name = "Tantae"},
     {id = "122665842844850", name = "Cikini-Gondangdia"},
@@ -606,8 +604,7 @@ local musicList = {
     {id = "132497938577328", name = "Oo-Ade-Sunika-Velocity-Radya-Sopan-2025"},
     {id = "75449960457040", name = "Rewrite-The-Stars-Aditya-Koh-Edit-2025"},
     {id = "81015683211393", name = "Lagu-17-Agustusan"},
-    {id = "119254319180287", name = "AKU-DONG"}
-    ,
+    {id = "119254319180287", name = "AKU-DONG"},
     {id = "140380438039459", name = "enak"},
     {id = "102691597341093", name = "we-be-burn"},
     {id = "135473905127296", name = "50"},
@@ -627,8 +624,7 @@ local musicList = {
     {id = "99518929868012", name = "Gym-Mockingbird-Remix"},
     {id = "130132238955126", name = "THE-LAST-SAHUR"},
     {id = "104206090255438", name = ""},
-    {id = "114128715751316", name = "zombie"}
-    ,
+    {id = "114128715751316", name = "zombie"},
     {id = "125014875225876", name = "ALONE"},
     {id = "119341948158777", name = "Mang-Ch-ng"},
     {id = "100991657598498", name = "Lollipop"},
