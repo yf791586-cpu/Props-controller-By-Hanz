@@ -628,6 +628,26 @@ local musicList = {
     {id = "130132238955126", name = "THE-LAST-SAHUR"},
     {id = "104206090255438", name = ""},
     {id = "114128715751316", name = "zombie"}
+    ,
+    {id = "125014875225876", name = "ALONE"},
+    {id = "119341948158777", name = "Mang-Ch-ng"},
+    {id = "100991657598498", name = "Lollipop"},
+    {id = "123418190503573", name = ""},
+    {id = "107341259483191", name = "Love-Story"},
+    {id = "123800281319097", name = "Phut-Hon"},
+    {id = "84465860347641", name = "comethru-eiei"},
+    {id = "107640531223975", name = "Stereo-Love"},
+    {id = "97785104909396", name = "ARIA"},
+    {id = "81122165966323", name = "MENDISCO"},
+    {id = "79928677555141", name = "NOTHING-BEATS-JET"},
+    {id = "82426641996836", name = "Wo-De-Ge-Sheng-Li"},
+    {id = "108945308421407", name = "DJ-Anu-Terindah"},
+    {id = "70633665224310", name = "TOR-MONITOR-GACOR-fyp"},
+    {id = "95193214835257", name = "fear"},
+    {id = "108092699453319", name = "Alone"},
+    {id = "119822943881590", name = "HABIBI"},
+    {id = "115492336583856", name = "cheap-thrills-888"},
+    {id = "107887768910692", name = "Summertime-Sadness"}
     -- [BOT_INSERT_HERE]
 }
 
