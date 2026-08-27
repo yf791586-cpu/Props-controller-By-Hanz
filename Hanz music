@@ -708,6 +708,25 @@ local musicList = {
     {id = "121294940327865", name = "CELAWZE-HIPHOP-BTK-X-TIMUR-V1"},
     {id = "119833746241221", name = "Stucy-TERCIPTA-X-KICAU-I-LHS"},
     {id = "116231101283651", name = "Stucy-INDOBOUNCE-Cle-House-pt3"}
+    ,
+    {id = "72693126591985", name = "MBG-MAS-BAHLIL-GANTENG-FUNK-2"},
+    {id = "128071048140468", name = "Natraa-Always-Loving-x-My-Neck"},
+    {id = "127933835766961", name = "Natraa-Mix-2-Ft-Frezboy"},
+    {id = "125424755119611", name = ""},
+    {id = "124564676675935", name = "Do-Bad-Well-X-Beautiful-Lie"},
+    {id = "108172611858503", name = "ALQUIMIA-Sped-Up"},
+    {id = "95827485337717", name = "Pink-Dreams-Forever-Hardstyle-Mix"},
+    {id = "133862055584202", name = ""},
+    {id = "75537083584377", name = "ASOW-FUNK"},
+    {id = "117892249308144", name = "Disco-Poci"},
+    {id = "102206403077325", name = "KONDANG-UENAK"},
+    {id = "72176107596923", name = "VIVIN-I-Bercanda"},
+    {id = "80810879447131", name = "JB-mix"},
+    {id = "127124715316926", name = "Paper-Moon"},
+    {id = "86316862829978", name = "DEAR-GOD-COUNTRY-VIBES"},
+    {id = "74428516754430", name = "Toy"},
+    {id = "118736229530151", name = "DJ-KAU-MUNGKIN-SUKA-FYP"},
+    {id = "110337096446518", name = "ONIA"}
     -- [BOT_INSERT_HERE]
 }
 
