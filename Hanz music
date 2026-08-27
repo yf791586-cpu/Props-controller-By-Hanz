@@ -566,6 +566,9 @@ end, Color3.fromRGB(231, 76, 60))
 -- ISI TAB: MUSIC ID
 -- ==========================================
 local musicList = {
+{id = "9984789656571", name = "phonk"},
+{id = "77063870786604", name = "Chinese"},
+{id = "116704489332329", name = "Verity"},
     -- [BOT_INSERT_HERE]
 }
 
