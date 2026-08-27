@@ -739,12 +739,7 @@ local musicList = {
     {id = "124384558101360", name = ""},
     {id = "100283282832664", name = "DJ-LUXY-x-GUN-MIX-Penceraian-Lara"},
     {id = "96866485877642", name = "AIS-BABAT-P-APA"},
-    {id = "121858997198958", name = "DJ-SEKADING-STYLE-TAK-DES-TAK-KRUK-KRUK-FULL-BASS"}
-    ,
-    {id = "115037829965347", name = "DJ-BATTLE-PERDAMAIAN-YANG-DI-PAKAI-BP-AUDIO"},
-    {id = "91630275902282", name = "DJ-BETTEL-TUTUK-PANCI-TJAP-RADAR-KAPAL"},
-    {id = "137339157733851", name = "Dj-lali-judul"},
-    {id = "96082404733673", name = "Stucy-Mix-Dangdut-pt3"}
+    {id = "121858997198958", name = "DJ-SEKADING-STYLE-TAK-DES-TAK-KRUK-KRUK-FULL-BASS"},
     -- [BOT_INSERT_HERE]
 }
 
