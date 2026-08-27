@@ -587,6 +587,26 @@ local musicList = {
     {id = "79073283903510", name = "Joget-Lalalala"},
     {id = "117319879647586", name = "Kick-It"},
     {id = "77533933904801", name = "Coba-Coba"}
+    ,
+    {id = "122389825417820", name = "Moonlighthood"},
+    {id = "116647235474599", name = "Tantae"},
+    {id = "122665842844850", name = "Cikini-Gondangdia"},
+    {id = "98337901681441", name = "Mente-ma"},
+    {id = "78859797813378", name = "Pargoy-Gerah-Skidipapap"},
+    {id = "137067689748748", name = "Pargoy-Bass-Ojo-Pake-Le"},
+    {id = "90471492509215", name = "Pong-Pong-Enak"},
+    {id = "121868316988947", name = "Espacio-Funk-Ultra-Slow"},
+    {id = "90145710334449", name = "JJ-WORLD-MENGKANE-UDAH-MAMPU-GAK-BOS"},
+    {id = "118390472006859", name = "DJ-PARTY-SHAKER-MENGKANE-JEDAG-JEDUG"},
+    {id = "137657207613132", name = "STAY-KANE-TEMAN-GIBAH"},
+    {id = "135018311294635", name = "DJ-CINNAMON-GIRL"},
+    {id = "111318048787674", name = "PASSO-BEM-SOLTO-SUBMUNDO"},
+    {id = "118538313029983", name = "WHERE-WE-ARE-DUTCH-X-PLAT-KT"},
+    {id = "101351410845508", name = "MAIMUNA-JAMILA-LAMBADA"},
+    {id = "132497938577328", name = "Oo-Ade-Sunika-Velocity-Radya-Sopan-2025"},
+    {id = "75449960457040", name = "Rewrite-The-Stars-Aditya-Koh-Edit-2025"},
+    {id = "81015683211393", name = "Lagu-17-Agustusan"},
+    {id = "119254319180287", name = "AKU-DONG"}
     -- [BOT_INSERT_HERE]
 }
 
