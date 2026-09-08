@@ -1,0 +1,527 @@
+-- ==========================================
+-- 1. ANTI-DUPE & GLOBAL SETTINGS
+-- ==========================================
+if getgenv().TwistOfFateCleanup then
+    pcall(getgenv().TwistOfFateCleanup)
+end
+
+local getgenv = getgenv or function() return _G end
+getgenv().ScriptActive = true
+
+-- State Toggles (Default Nyala)
+getgenv().SilentAimEnabled = true
+getgenv().KillerESPEnabled = true
+getgenv().TeamESPEnabled = true
+
+-- Services
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local GuiService = game:GetService("GuiService")
+local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+
+local localPlayer = Players.LocalPlayer
+local camera = Workspace.CurrentCamera
+
+-- Menentukan parent GUI yang aman
+local guiParent = pcall(function() return CoreGui.Name end) and CoreGui or localPlayer:WaitForChild("PlayerGui")
+
+-- Variables & Connections
+local connections = {}
+local espCache = {} 
+local linePart = nil
+local isHoldingButton = false
+local activeInputObj = nil 
+
+local remote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Items"):WaitForChild("Twist of Fate"):WaitForChild("Fire")
+
+-- ==========================================
+-- 2. MEMBUAT MODERN GUI & BUBBLE
+-- ==========================================
+
+local sg = Instance.new("ScreenGui")
+sg.Name = "TwistOfFate_Hub"
+sg.ResetOnSpawn = false
+sg.DisplayOrder = 9999999
+sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+sg.Parent = guiParent
+
+local function MakeDraggable(topbarObject, object)
+    local dragging, dragInput, dragStart, startPos
+    
+    local function update(input)
+        local delta = input.Position - dragStart
+        object.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+    
+    local conn1 = topbarObject.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = object.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+            end)
+        end
+    end)
+    
+    local conn2 = topbarObject.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    
+    local conn3 = UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then update(input) end
+    end)
+    
+    table.insert(connections, conn1)
+    table.insert(connections, conn2)
+    table.insert(connections, conn3)
+end
+
+-- MAIN FRAME
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 300, 0, 220)
+mainFrame.Position = UDim2.new(0.5, -150, 0.5, -110)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+mainFrame.BorderSizePixel = 0
+mainFrame.ClipsDescendants = true
+mainFrame.Parent = sg
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 10)
+frameCorner.Parent = mainFrame
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(255, 60, 60)
+UIStroke.Thickness = 2
+UIStroke.Parent = mainFrame
+
+-- TOPBAR
+local topBar = Instance.new("Frame")
+topBar.Name = "TopBar"
+topBar.Size = UDim2.new(1, 0, 0, 40)
+topBar.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+topBar.BorderSizePixel = 0
+topBar.Parent = mainFrame
+local topBarCorner = Instance.new("UICorner")
+topBarCorner.CornerRadius = UDim.new(0, 10)
+topBarCorner.Parent = topBar
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -50, 1, 0)
+title.Position = UDim2.new(0, 15, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Fate Enhancer"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+local minBtn = Instance.new("TextButton")
+minBtn.Size = UDim2.new(0, 30, 0, 30)
+minBtn.Position = UDim2.new(1, -35, 0.5, -15)
+minBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+minBtn.Text = "-"
+minBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+minBtn.Font = Enum.Font.GothamBold
+minBtn.TextSize = 20
+minBtn.Parent = topBar
+local minCorner = Instance.new("UICorner")
+minCorner.CornerRadius = UDim.new(0, 6)
+minCorner.Parent = minBtn
+
+MakeDraggable(topBar, mainFrame)
+
+-- BUBBLE FLOAT
+local bubble = Instance.new("ImageButton")
+bubble.Name = "FloatingBubble"
+bubble.Size = UDim2.new(0, 50, 0, 50)
+bubble.Position = UDim2.new(0.5, -25, 0, 20)
+bubble.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+bubble.Visible = false
+bubble.AutoButtonColor = false
+bubble.Parent = sg
+
+local bubbleCorner = Instance.new("UICorner")
+bubbleCorner.CornerRadius = UDim.new(1, 0)
+bubbleCorner.Parent = bubble
+local bubbleStroke = Instance.new("UIStroke")
+bubbleStroke.Color = Color3.fromRGB(255, 60, 60)
+bubbleStroke.Thickness = 2
+bubbleStroke.Parent = bubble
+
+local bubbleIcon = Instance.new("TextLabel")
+bubbleIcon.Size = UDim2.new(1, 0, 1, 0)
+bubbleIcon.BackgroundTransparency = 1
+bubbleIcon.Text = "FE"
+bubbleIcon.TextColor3 = Color3.fromRGB(255, 60, 60)
+bubbleIcon.Font = Enum.Font.GothamBlack
+bubbleIcon.TextSize = 22
+bubbleIcon.Parent = bubble
+
+MakeDraggable(bubble, bubble)
+
+local isMinimized = false
+local function toggleMinimize()
+    isMinimized = not isMinimized
+    if isMinimized then
+        local tween = TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)})
+        tween:Play(); tween.Completed:Wait()
+        mainFrame.Visible = false
+        bubble.Visible = true; bubble.Size = UDim2.new(0,0,0,0)
+        TweenService:Create(bubble, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 50, 0, 50)}):Play()
+    else
+        local bubbleTween = TweenService:Create(bubble, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)})
+        bubbleTween:Play(); bubbleTween.Completed:Wait()
+        bubble.Visible = false
+        mainFrame.Visible = true
+        TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 300, 0, 220)}):Play()
+    end
+end
+table.insert(connections, minBtn.MouseButton1Click:Connect(toggleMinimize))
+table.insert(connections, bubble.MouseButton1Click:Connect(toggleMinimize))
+table.insert(connections, bubble.TouchTap:Connect(toggleMinimize))
+
+-- TOGGLE CONTAINER
+local contentFrame = Instance.new("ScrollingFrame")
+contentFrame.Size = UDim2.new(1, -20, 1, -50)
+contentFrame.Position = UDim2.new(0, 10, 0, 45)
+contentFrame.BackgroundTransparency = 1
+contentFrame.ScrollBarThickness = 4
+contentFrame.Parent = mainFrame
+local listLayout = Instance.new("UIListLayout")
+listLayout.Padding = UDim.new(0, 10); listLayout.Parent = contentFrame
+
+local function createToggle(name, defaultState, callback)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 0, 40); frame.BackgroundColor3 = Color3.fromRGB(35, 35, 45); frame.Parent = contentFrame
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.7, 0, 1, 0); label.Position = UDim2.new(0, 15, 0, 0)
+    label.BackgroundTransparency = 1; label.Text = name; label.TextColor3 = Color3.fromRGB(220, 220, 220)
+    label.Font = Enum.Font.GothamSemibold; label.TextSize = 14; label.TextXAlignment = Enum.TextXAlignment.Left; label.Parent = frame
+
+    local toggleBtn = Instance.new("TextButton")
+    toggleBtn.Size = UDim2.new(0, 40, 0, 20); toggleBtn.Position = UDim2.new(1, -55, 0.5, -10)
+    toggleBtn.BackgroundColor3 = defaultState and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(100, 100, 100)
+    toggleBtn.Text = ""; toggleBtn.Parent = frame
+    Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1, 0)
+
+    local circle = Instance.new("Frame")
+    circle.Size = UDim2.new(0, 16, 0, 16)
+    circle.Position = defaultState and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
+    circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255); circle.Parent = toggleBtn
+    Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
+
+    local state = defaultState
+    local function fireToggle()
+        state = not state; callback(state)
+        local targetColor = state and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(100, 100, 100)
+        local targetPos = state and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
+        TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = targetColor}):Play()
+        TweenService:Create(circle, TweenInfo.new(0.2), {Position = targetPos}):Play()
+    end
+    table.insert(connections, toggleBtn.MouseButton1Click:Connect(fireToggle))
+    return frame
+end
+
+createToggle("Silent Aim", getgenv().SilentAimEnabled, function(val)
+    getgenv().SilentAimEnabled = val
+    if not val then isHoldingButton = false; if linePart then linePart:Destroy(); linePart = nil end end
+end)
+createToggle("Killer ESP", getgenv().KillerESPEnabled, function(val) getgenv().KillerESPEnabled = val end)
+createToggle("Team ESP", getgenv().TeamESPEnabled, function(val) getgenv().TeamESPEnabled = val end)
+
+
+-- ==========================================
+-- 3. UTILITY (FIXED ANTI-ERROR)
+-- ==========================================
+
+local function getGunPart()
+    local char = localPlayer.Character
+    if not char then return nil, nil end
+
+    local tool = char:FindFirstChild("Twist of Fate")
+    if not tool then return nil, nil end
+
+    local remoteArg = nil
+    local rightArm = tool:FindFirstChild("Right Arm")
+
+    -- 1. Cek Cepat untuk Skin Standar / Emperor (Tanpa Loop)
+    if rightArm then
+        remoteArg = rightArm:FindFirstChild("gun") or rightArm:FindFirstChild("EmperorGun")
+    end
+    if not remoteArg then
+        remoteArg = tool:FindFirstChild("gun") or tool:FindFirstChild("EmperorGun")
+    end
+
+    -- 2. Cek Model/Part tidak bernama di Right Arm (Hanya 1 Level agar tidak lag)
+    if not remoteArg and rightArm then
+        for _, child in ipairs(rightArm:GetChildren()) do
+            if child:IsA("Model") or child:IsA("BasePart") then
+                remoteArg = child
+                break
+            end
+        end
+    end
+
+    -- 3. Jika tidak ada apa-apa, gunakan Tool langsung (Skin ke-3)
+    if not remoteArg then
+        remoteArg = tool
+    end
+
+    -- 4. CARI TITIK AWAL GARIS (Wajib BasePart fisik, bukan Model agar tidak ERROR)
+    local visualPart = nil
+    if remoteArg and remoteArg:IsA("BasePart") then
+        visualPart = remoteArg
+    elseif remoteArg and remoteArg:IsA("Model") and remoteArg.PrimaryPart then
+        visualPart = remoteArg.PrimaryPart
+    else
+        -- Aman: Jadikan Lengan Karakter / Dada Karakter asli sebagai patokan visual tembakan
+        visualPart = char:FindFirstChild("Right Arm") or char:FindFirstChild("RightHand") or char:FindFirstChild("HumanoidRootPart")
+    end
+
+    return remoteArg, visualPart
+end
+
+local function getKillerCharacter()
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= localPlayer and p.Team and tostring(p.Team) == "Killer" then
+            local char = p.Character
+            if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChildOfClass("Humanoid") then
+                if char:FindFirstChildOfClass("Humanoid").Health > 0 then return char end
+            end
+        end
+    end
+    return nil
+end
+
+local function getTeamColor(player) return player.Team and player.TeamColor.Color or Color3.fromRGB(255, 255, 255) end
+
+local function checkKillerIsCarrying(char)
+    if not char then return false end
+    if char:GetAttribute("IsCarrying") == true then return true end
+    local val = char:FindFirstChild("IsCarrying")
+    if val and val:IsA("ValueBase") and val.Value == true then return true end
+    return false
+end
+
+-- ==========================================
+-- 4. VISUALS (ESP DINAMIS & AIM LINE)
+-- ==========================================
+
+local function clearESP(player)
+    if espCache[player] then
+        if espCache[player].Highlight then espCache[player].Highlight:Destroy() end
+        if espCache[player].DotContainer then espCache[player].DotContainer:Destroy() end
+        espCache[player] = nil
+    end
+end
+table.insert(connections, Players.PlayerRemoving:Connect(clearESP))
+
+local function updateAllESP()
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p == localPlayer then continue end
+        local char = p.Character
+        local rootPart = char and char:FindFirstChild("HumanoidRootPart")
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local isAlive = rootPart and hum and hum.Health > 0
+        local isKiller = p.Team and tostring(p.Team) == "Killer"
+        
+        if not isAlive or (isKiller and not getgenv().KillerESPEnabled) or (not isKiller and not getgenv().TeamESPEnabled) then clearESP(p); continue end
+        
+        if not espCache[p] then espCache[p] = {} end
+        local tColor = getTeamColor(p)
+        
+        if isKiller then
+            if espCache[p].DotContainer then espCache[p].DotContainer:Destroy(); espCache[p].DotContainer = nil end
+            if not espCache[p].Highlight or espCache[p].Highlight.Parent ~= char then
+                if espCache[p].Highlight then espCache[p].Highlight:Destroy() end
+                local hl = Instance.new("Highlight")
+                hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop; hl.Adornee = char; hl.Parent = char
+                espCache[p].Highlight = hl
+            end
+            local hl = espCache[p].Highlight; hl.Enabled = true
+            local isKillerCarrying = checkKillerIsCarrying(char)
+            if isKillerCarrying then
+                hl.FillColor = Color3.fromRGB(0, 140, 255); hl.OutlineColor = Color3.fromRGB(0, 140, 255); hl.FillTransparency = 0; hl.OutlineTransparency = 0
+            else
+                hl.FillColor = Color3.fromRGB(255, 30, 30); hl.OutlineColor = Color3.fromRGB(255, 30, 30); hl.FillTransparency = 0.5; hl.OutlineTransparency = 0
+            end
+        else
+            if espCache[p].Highlight then espCache[p].Highlight:Destroy(); espCache[p].Highlight = nil end
+            if not espCache[p].DotContainer or espCache[p].DotContainer.Parent ~= rootPart then
+                if espCache[p].DotContainer then espCache[p].DotContainer:Destroy() end
+                local bgui = Instance.new("BillboardGui")
+                bgui.AlwaysOnTop = true; bgui.Size = UDim2.new(0, 30, 0, 30); bgui.Adornee = rootPart
+                local frame = Instance.new("Frame")
+                frame.Size = UDim2.new(0, 14, 0, 14); frame.AnchorPoint = Vector2.new(0.5, 0.5); frame.Position = UDim2.new(0.5, 0, 0.5, 0); frame.BorderSizePixel = 0; frame.Parent = bgui
+                Instance.new("UICorner", frame).CornerRadius = UDim.new(1, 0)
+                local stroke = Instance.new("UIStroke", frame); stroke.Thickness = 1.5; stroke.Color = Color3.new(0, 0, 0)
+                bgui.Parent = rootPart
+                espCache[p].DotContainer = bgui; espCache[p].DotFrame = frame
+            end
+            if espCache[p].DotFrame then
+                espCache[p].DotFrame.BackgroundColor3 = tColor
+                if camera then
+                    local dist = (camera.CFrame.Position - rootPart.Position).Magnitude
+                    local clampedSize = math.clamp(math.floor(250 / math.max(dist, 5)), 4, 16)
+                    espCache[p].DotFrame.Size = UDim2.new(0, clampedSize, 0, clampedSize)
+                end
+            end
+        end
+    end
+end
+
+local function stopAimLine()
+    isHoldingButton = false
+    if linePart then linePart:Destroy(); linePart = nil end
+end
+
+local function startAimLine()
+    if not getgenv().SilentAimEnabled then return end
+    stopAimLine()
+    isHoldingButton = true
+    linePart = Instance.new("Part"); linePart.Anchored = true; linePart.CanCollide = false; linePart.CanTouch = false; linePart.CanQuery = false
+    linePart.Material = Enum.Material.Neon; linePart.Color = Color3.fromRGB(255, 30, 30); linePart.Transparency = 0.3; linePart.Parent = workspace
+end
+
+local renderConn = RunService.RenderStepped:Connect(function()
+    updateAllESP() 
+    if isHoldingButton and linePart then
+        local killerChar = getKillerCharacter()
+        local _, gunVisualPart = getGunPart()
+        local myChar = localPlayer.Character
+        local myHum = myChar and myChar:FindFirstChildOfClass("Humanoid")
+        
+        local isKnocked = myChar and myChar:GetAttribute("Knock") == true
+        local isHooked = myChar and myChar:GetAttribute("IsHooked") == true
+
+        if not getgenv().SilentAimEnabled or not killerChar or not gunVisualPart or (myHum and myHum.Health <= 30) or isKnocked or isHooked then
+            stopAimLine(); return
+        end
+
+        local killerPos = killerChar.HumanoidRootPart.Position
+        local startPos = gunVisualPart.Position
+        local distance = (killerPos - startPos).Magnitude
+        if distance < 0.1 then distance = 0.1 end
+
+        linePart.Transparency = 0.3
+        linePart.Size = Vector3.new(0.15, 0.15, distance)
+        linePart.CFrame = CFrame.lookAt(startPos, killerPos) * CFrame.new(0, 0, -distance / 2)
+    end
+end)
+table.insert(connections, renderConn)
+
+-- ==========================================
+-- 5. LOGIKA TEMBAK & CANCEL
+-- ==========================================
+
+local function isNearCancelButton(inputPosition)
+    local playerGui = localPlayer:FindFirstChild("PlayerGui")
+    if not playerGui then return false end
+    local survivorMob = playerGui:FindFirstChild("Survivor-mob")
+    local controls = survivorMob and survivorMob:FindFirstChild("Controls")
+    local guiMob = controls and controls:FindFirstChild("Gui-mob")
+    local cancelBtn = guiMob and guiMob:FindFirstChild("cancelaim")
+    if not cancelBtn then return false end
+
+    local absPos = cancelBtn.AbsolutePosition; local absSize = cancelBtn.AbsoluteSize; local inset, _ = GuiService:GetGuiInset()
+    local x = inputPosition.X; local y = inputPosition.Y - inset.Y; local hitToleransi = 35 
+    
+    return x >= (absPos.X - hitToleransi) and x <= (absPos.X + absSize.X + hitToleransi) and
+           y >= (absPos.Y - hitToleransi) and y <= (absPos.Y + absSize.Y + hitToleransi)
+end
+
+local function tryFire()
+    if not getgenv().SilentAimEnabled then return end
+
+    local myChar = localPlayer.Character
+    if not myChar then return end
+    if myChar:GetAttribute("Knock") == true or myChar:GetAttribute("IsHooked") == true then return end
+    
+    local humanoid = myChar:FindFirstChildOfClass("Humanoid")
+    if humanoid and humanoid.Health <= 30 then return end
+
+    local remoteArg, gunVisualPart = getGunPart()
+    local killerChar = getKillerCharacter()
+    
+    if remoteArg and gunVisualPart and killerChar then
+        local killerRoot = killerChar:FindFirstChild("HumanoidRootPart")
+        if not killerRoot then return end
+
+        local direction = (killerRoot.Position - gunVisualPart.Position).Unit
+        
+        pcall(function()
+            remote:FireServer(remoteArg, direction)
+        end)
+    end
+end
+
+table.insert(connections, UserInputService.InputEnded:Connect(function(input)
+    if activeInputObj and input == activeInputObj then
+        activeInputObj = nil 
+        if isHoldingButton then
+            stopAimLine()
+            if isNearCancelButton(input.Position) then return end
+            tryFire()
+        end
+    end
+end))
+
+-- ==========================================
+-- 6. GUI INJECTOR & WATCHDOG
+-- ==========================================
+
+local function setupButtonConnections()
+    local playerGui = localPlayer:FindFirstChild("PlayerGui")
+    if not playerGui then return end
+    local survivorMob = playerGui:FindFirstChild("Survivor-mob")
+    if not survivorMob then return end
+    local controls = survivorMob:FindFirstChild("Controls")
+    if not controls then return end
+    local guiMob = controls:FindFirstChild("Gui-mob")
+    if not guiMob then return end
+    
+    local iconButton = guiMob:FindFirstChild("icon")
+    if not iconButton then return end
+
+    if not iconButton:GetAttribute("BoundSilentAim") then
+        iconButton:SetAttribute("BoundSilentAim", true)
+        table.insert(connections, iconButton.InputBegan:Connect(function(input)
+            if (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1) and getgenv().SilentAimEnabled then
+                if not isHoldingButton then activeInputObj = input; startAimLine() end
+            end
+        end))
+    end
+end
+
+task.spawn(function()
+    while getgenv().ScriptActive do
+        pcall(setupButtonConnections)
+        task.wait(1)
+    end
+end)
+
+-- ==========================================
+-- 7. CLEANUP
+-- ==========================================
+
+getgenv().TwistOfFateCleanup = function()
+    getgenv().ScriptActive = false; stopAimLine(); activeInputObj = nil
+    if sg then sg:Destroy() end
+    for p, _ in pairs(espCache) do clearESP(p) end; espCache = {}
+    for _, conn in ipairs(connections) do
+        if conn and conn.Connected then conn:Disconnect() end
+    end
+    connections = {}
+end
