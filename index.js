@@ -1,54 +1,60 @@
 const mineflayer = require('mineflayer');
-const express = require('express');
-const app = express();
+const http = require('http');
 
-// 1. KODE WEB SERVER (Untuk syarat Render & Anti-Sleep)
-app.get('/', (req, res) => res.send('Bot Minecraft Sedang Berjalan!'));
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Web server hidup di port ${port}`));
+// Web server kecil agar panel Wispbyte tidak tidur
+http.createServer((req, res) => {
+    res.writeHead(200);
+    res.end('OK');
+}).listen(8080);
 
-// 2. KODE BOT MINECRAFT
 function createBot() {
     const bot = mineflayer.createBot({
         host: 'alwination.id',
         username: 'Han_CraftAlt',
-        version: '1.13.2' // <-- Ini sudah diganti ke 1.13.2
+        version: '1.13.2',
+        physicsEnabled: false, // Mematikan kalkulasi fisika (Hemat CPU drastis)
+        viewDistance: 'tiny',  // Render jarak dekat (Hemat RAM & CPU)
+        checkTimeoutInterval: 60000
     });
 
-    bot.on('spawn', async () => {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    bot.once('spawn', async () => {
         console.log('Bot berhasil masuk ke server!');
         
-        // Fungsi untuk membuat jeda (delay)
-        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-        // Command 1: Login 3 kali dengan delay 1 detik
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 2; i++) {
             bot.chat('/login 082385');
-            await delay(1000);
+            await delay(1500);
         }
-        console.log('Selesai command login');
-
-        // Command 2: Pindah server ke OneBlock2 sebanyak 3 kali dengan delay 1 detik
-        for (let i = 0; i < 3; i++) {
+        
+        for (let i = 0; i < 2; i++) {
             bot.chat('/server OneBlock2');
-            await delay(1000);
+            await delay(1500);
         }
-        console.log('Selesai command pindah server');
-
-        // Command 3: Masukkan password ShopOre 1 kali
+        
         bot.chat('/pw ShopOre');
-        console.log('Selesai command pw. Bot sekarang AFK & Stay Online!');
+        console.log('Bot AFK aktif (Mode Ultra Ringan - Tanpa Console).');
+
+        // Anti-AFK pukul angin setiap 5 menit (sangat ringan untuk CPU)
+        setInterval(() => {
+            try {
+                bot.swingArm('right');
+            } catch(e) {}
+        }, 5 * 60 * 1000);
     });
 
-    // Menampilkan error jika ada
-    bot.on('error', err => console.log('Error:', err));
+    bot.on('error', (err) => {});
+    
+    bot.on('kicked', (reason) => console.log('Di-kick server:', reason));
 
-    // Fitur Auto-Reconnect jika bot ditendang/terputus dari server
     bot.on('end', () => {
-        console.log('Bot terputus! Menyambungkan kembali dalam 5 detik...');
+        console.log('Bot terputus! Reconnecting dalam 5 detik...');
         setTimeout(createBot, 5000);
     });
 }
 
-// Menjalankan bot
+// Pelindung agar program tidak crash
+process.on('uncaughtException', () => {});
+process.on('unhandledRejection', () => {});
+
 createBot();
