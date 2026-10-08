@@ -3,6 +3,8 @@
 -- Judul jendela: Hanz Music
 -- Bubble minimize: kiri layar, sedikit di atas tengah (aman dari tombol lompat).
 -- Bisa digeser. Favorit tetap tersimpan di HanzGui_Favorites.json
+-- Ukuran jendela: tab "Size" (preset + slider) atau seret titik-titik di pojok
+-- kanan bawah. Ukuran tersimpan di HanzMusic_Size.json
 -- ==============================================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -429,6 +431,14 @@ local musicList = {
     {id = "103765309710247", name = "New"},
     {id = "110273485966406", name = "New"},
     {id = "90089940136467", name = "New"},
+    {id = "85936017588280", name = "New"},
+    {id = "136708860877320", name = "New"},
+    {id = "138590381321389", name = "New"},
+    {id = "115035906821398", name = "New"},
+    {id = "96773668848566", name = "New"},
+    {id = "132054631309472", name = "New"},
+    {id = "70780471034312", name = "New"},
+    {id = "138061809475625", name = "New"},
 }
 
 local function displayName(item)
@@ -488,12 +498,107 @@ Main.Active = true
 corner(Main, 18)
 stroke(Main, Theme.Line, 1, 0.15)
 
-local sizeCap = Instance.new("UISizeConstraint")
-sizeCap.MinSize = Vector2.new(260, 320)
-sizeCap.MaxSize = Vector2.new(430, 520)
-sizeCap.Parent = Main
+-- ==========================================
+-- UKURAN JENDELA (size)
+-- ==========================================
+local SizeFileName = "HanzMusic_Size.json"
+local MIN_W, MIN_H = 280, 320
+local winW, winH = 0, 0
+local targetSize = UDim2.fromOffset(0, 0)
+local windowOpen = false
+local sizeTween = nil
+local sizeListeners = {}
 
-local targetSize = UDim2.new(0.94, 0, 0.72, 0)
+local function getViewport()
+    local vp = HanzGui.AbsoluteSize
+    if vp.X < 100 or vp.Y < 100 then
+        local cam = workspace.CurrentCamera
+        if cam then
+            vp = cam.ViewportSize
+        end
+    end
+    return vp
+end
+
+local function defaultSize()
+    local vp = getViewport()
+    return math.min(vp.X * 0.94, 430), math.min(vp.Y * 0.72, 520)
+end
+
+local function clampSize(w, h)
+    local vp = getViewport()
+    local maxW = math.max(MIN_W, math.floor(vp.X - 16))
+    local maxH = math.max(MIN_H, math.floor(vp.Y - 16))
+    return math.clamp(math.floor(w + 0.5), MIN_W, maxW), math.clamp(math.floor(h + 0.5), MIN_H, maxH)
+end
+
+-- Jaga supaya jendela tidak keluar dari layar setelah ukuran berubah.
+local function keepOnScreen(w, h)
+    local vp = getViewport()
+    local p = Main.Position
+    local cx = p.X.Scale * vp.X + p.X.Offset
+    local cy = p.Y.Scale * vp.Y + p.Y.Offset
+    cx = math.clamp(cx, w / 2, math.max(w / 2, vp.X - w / 2))
+    cy = math.clamp(cy, h / 2, math.max(h / 2, vp.Y - h / 2))
+    Main.Position = UDim2.fromOffset(cx, cy)
+end
+
+local function notifySize()
+    for _, fn in ipairs(sizeListeners) do
+        fn()
+    end
+end
+
+local function saveSize()
+    pcall(function()
+        if writefile then
+            writefile(SizeFileName, HttpService:JSONEncode({ w = winW, h = winH }))
+        end
+    end)
+end
+
+local function loadSize()
+    local w, h
+    pcall(function()
+        if isfile and isfile(SizeFileName) then
+            local data = HttpService:JSONDecode(readfile(SizeFileName))
+            if type(data) == "table" and type(data.w) == "number" and type(data.h) == "number" then
+                w, h = data.w, data.h
+            end
+        end
+    end)
+    return w, h
+end
+
+local function resetSavedSize()
+    pcall(function()
+        if delfile and isfile and isfile(SizeFileName) then
+            delfile(SizeFileName)
+        end
+    end)
+end
+
+local function setWindowSize(w, h, animate)
+    w, h = clampSize(w, h)
+    winW, winH = w, h
+    targetSize = UDim2.fromOffset(w, h)
+    if windowOpen then
+        if sizeTween then
+            sizeTween:Cancel()
+            sizeTween = nil
+        end
+        keepOnScreen(w, h)
+        if animate then
+            sizeTween = TweenService:Create(Main, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Size = targetSize,
+            })
+            sizeTween:Play()
+        else
+            Main.Size = targetSize
+        end
+    end
+    notifySize()
+end
 
 local Topbar = Instance.new("Frame")
 Topbar.Name = "Topbar"
@@ -597,6 +702,7 @@ TabBar.Position = UDim2.new(0, 0, 1, 0)
 TabBar.Size = UDim2.new(1, 0, 0, 54)
 TabBar.BackgroundColor3 = Theme.Ink
 TabBar.BorderSizePixel = 0
+TabBar.ZIndex = 5 -- selalu di atas isi halaman, jadi menu tab tidak bisa tertutup
 
 local tabLine = Instance.new("Frame")
 tabLine.Size = UDim2.new(1, 0, 0, 1)
@@ -604,12 +710,113 @@ tabLine.BackgroundColor3 = Theme.Line
 tabLine.BorderSizePixel = 0
 tabLine.Parent = TabBar
 
+local TabHolder = Instance.new("Frame")
+TabHolder.Name = "TabHolder"
+TabHolder.Parent = TabBar
+TabHolder.Position = UDim2.fromOffset(0, 1)
+TabHolder.Size = UDim2.new(1, -30, 1, -1)
+TabHolder.BackgroundTransparency = 1
+TabHolder.BorderSizePixel = 0
+
+-- Pegangan resize (pojok kanan bawah)
+local ResizeGrip = Instance.new("TextButton")
+ResizeGrip.Name = "ResizeGrip"
+ResizeGrip.Parent = TabBar
+ResizeGrip.AnchorPoint = Vector2.new(1, 0)
+ResizeGrip.Position = UDim2.new(1, 0, 0, 1)
+ResizeGrip.Size = UDim2.new(0, 30, 1, -1)
+ResizeGrip.BackgroundTransparency = 1
+ResizeGrip.Text = ""
+ResizeGrip.AutoButtonColor = false
+ResizeGrip.BorderSizePixel = 0
+
+local gripDotFrames = {}
+for _, d in ipairs({ { 6, 6 }, { 0, 6 }, { -6, 6 }, { 6, 0 }, { 0, 0 }, { 6, -6 } }) do
+    local dot = Instance.new("Frame")
+    dot.Parent = ResizeGrip
+    dot.AnchorPoint = Vector2.new(0.5, 0.5)
+    dot.Position = UDim2.new(0.5, d[1], 0.5, d[2])
+    dot.Size = UDim2.fromOffset(3, 3)
+    dot.BackgroundColor3 = Theme.Muted
+    dot.BorderSizePixel = 0
+    corner(dot, 2)
+    table.insert(gripDotFrames, dot)
+end
+
+local function paintGrip(on)
+    for _, dot in ipairs(gripDotFrames) do
+        dot.BackgroundColor3 = on and Theme.Accent or Theme.Muted
+    end
+end
+
+do
+    local resizing = false
+    local resizeInput = nil
+    local resizeStart = Vector3.new(0, 0, 0)
+    local resizeLeft, resizeTop, resizeW, resizeH = 0, 0, 0, 0
+
+    bind(ResizeGrip.InputBegan, function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            if sizeTween then
+                sizeTween:Cancel()
+                sizeTween = nil
+            end
+            local vp = getViewport()
+            local p = Main.Position
+            local cx = p.X.Scale * vp.X + p.X.Offset
+            local cy = p.Y.Scale * vp.Y + p.Y.Offset
+            resizeW, resizeH = Main.AbsoluteSize.X, Main.AbsoluteSize.Y
+            resizeLeft = cx - resizeW / 2
+            resizeTop = cy - resizeH / 2
+            resizeStart = input.Position
+            resizeInput = input
+            resizing = true
+            paintGrip(true)
+        end
+    end)
+
+    bind(UserInputService.InputChanged, function(input)
+        if not resizing then
+            return
+        end
+        local t = input.UserInputType
+        if t == Enum.UserInputType.MouseMovement or (t == Enum.UserInputType.Touch and input == resizeInput) then
+            local d = input.Position - resizeStart
+            local vp = getViewport()
+            local maxW = math.max(MIN_W, math.floor(vp.X - resizeLeft - 4))
+            local maxH = math.max(MIN_H, math.floor(vp.Y - resizeTop - 4))
+            local w = math.clamp(math.floor(resizeW + d.X + 0.5), MIN_W, maxW)
+            local h = math.clamp(math.floor(resizeH + d.Y + 0.5), MIN_H, maxH)
+            winW, winH = w, h
+            targetSize = UDim2.fromOffset(w, h)
+            Main.Size = targetSize
+            -- pojok kiri atas tetap, hanya kanan bawah yang bergerak
+            Main.Position = UDim2.fromOffset(resizeLeft + w / 2, resizeTop + h / 2)
+            notifySize()
+        end
+    end)
+
+    bind(UserInputService.InputEnded, function(input)
+        if not resizing then
+            return
+        end
+        local t = input.UserInputType
+        if input == resizeInput or (t == Enum.UserInputType.MouseButton1 and resizeInput.UserInputType == Enum.UserInputType.MouseButton1) then
+            resizing = false
+            resizeInput = nil
+            paintGrip(false)
+            saveSize()
+        end
+    end)
+end
+
 local Content = Instance.new("Frame")
 Content.Parent = Main
 Content.Position = UDim2.fromOffset(0, 88)
 Content.Size = UDim2.new(1, 0, 1, -142)
 Content.BackgroundTransparency = 1
 Content.BorderSizePixel = 0
+Content.ClipsDescendants = true -- isi halaman tidak boleh menutupi menu tab
 
 local pages = {}
 local tabButtons = {}
@@ -784,8 +991,8 @@ local function createRow(parent, order, indexText, titleText, idText, id, onPlay
 end
 
 -- Tabs
-local tabNames = { "Home", "Musik", "Favorit", "Board" }
-local tabOrder = { Home = 1, Musik = 2, Favorit = 3, Board = 4 }
+local tabNames = { "Home", "Musik", "Favorit", "Board", "Size" }
+local tabOrder = { Home = 1, Musik = 2, Favorit = 3, Board = 4, Size = 5 }
 
 for _, tabName in ipairs(tabNames) do
     local page = Instance.new("Frame")
@@ -797,13 +1004,13 @@ for _, tabName in ipairs(tabNames) do
     pages[tabName] = page
 
     local btn = Instance.new("TextButton")
-    btn.Parent = TabBar
-    btn.Size = UDim2.new(0.25, 0, 1, 0)
-    btn.Position = UDim2.new((tabOrder[tabName] - 1) * 0.25, 0, 0, 0)
+    btn.Parent = TabHolder
+    btn.Size = UDim2.new(0.2, 0, 1, 0)
+    btn.Position = UDim2.new((tabOrder[tabName] - 1) * 0.2, 0, 0, 0)
     btn.BackgroundTransparency = 1
     btn.Text = tabName
     btn.Font = Enum.Font.GothamMedium
-    btn.TextSize = 13
+    btn.TextSize = 12
     btn.TextColor3 = Theme.Muted
     btn.AutoButtonColor = false
 
@@ -1099,18 +1306,9 @@ end
 bind(favSearch:GetPropertyChangedSignal("Text"), renderFavs)
 renderFavs()
 
--- BOARD
+-- BOARD (pakai scroll supaya semua kartu tetap bisa dijangkau di jendela kecil)
 local board = pages.Board
-local boardHolder = Instance.new("Frame")
-boardHolder.Parent = board
-boardHolder.Position = UDim2.fromOffset(12, 12)
-boardHolder.Size = UDim2.new(1, -24, 1, -16)
-boardHolder.BackgroundTransparency = 1
-
-local boardLayout = Instance.new("UIListLayout")
-boardLayout.Parent = boardHolder
-boardLayout.Padding = UDim.new(0, 8)
-boardLayout.SortOrder = Enum.SortOrder.LayoutOrder
+local boardHolder = makeScroll(board)
 
 local boardHint = label(boardHolder, "Papan dan kendaraan.", 13, Theme.Muted, Enum.Font.Gotham)
 boardHint.LayoutOrder = 1
@@ -1169,11 +1367,248 @@ actionCard(4, "Hapus papan", "Lepas kendaraan", Theme.Danger, Theme.Text, functi
     NowId.Text = "Delete NoMotorVehicle"
 end)
 
+-- SIZE (ukuran jendela)
+local sizePage = pages.Size
+local sizeScroll = makeScroll(sizePage)
+
+local sizeHint = label(sizeScroll, "Atur ukuran jendela. Tersimpan otomatis.", 13, Theme.Muted, Enum.Font.Gotham)
+sizeHint.LayoutOrder = 1
+sizeHint.Size = UDim2.new(1, 0, 0, 18)
+
+local sizeReadout = label(sizeScroll, "", 22, Theme.Accent, Enum.Font.GothamBold)
+sizeReadout.LayoutOrder = 2
+sizeReadout.Size = UDim2.new(1, 0, 0, 30)
+sizeReadout.TextXAlignment = Enum.TextXAlignment.Center
+
+local presets = {
+    { name = "Kecil", w = 300, h = 340 },
+    { name = "Sedang", w = 360, h = 420 },
+    { name = "Besar", w = 440, h = 520 },
+    { name = "Penuh", w = 9999, h = 9999 },
+}
+
+local presetRow = Instance.new("Frame")
+presetRow.Parent = sizeScroll
+presetRow.LayoutOrder = 3
+presetRow.Size = UDim2.new(1, 0, 0, 40)
+presetRow.BackgroundTransparency = 1
+presetRow.BorderSizePixel = 0
+
+local presetLayout = Instance.new("UIListLayout")
+presetLayout.Parent = presetRow
+presetLayout.FillDirection = Enum.FillDirection.Horizontal
+presetLayout.SortOrder = Enum.SortOrder.LayoutOrder
+presetLayout.Padding = UDim.new(0, 6)
+
+local presetButtons = {}
+for i, p in ipairs(presets) do
+    local btn = Instance.new("TextButton")
+    btn.Parent = presetRow
+    btn.LayoutOrder = i
+    btn.Size = UDim2.new(0.25, -5, 1, 0)
+    btn.BackgroundColor3 = Theme.Raised
+    btn.Text = p.name
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 13
+    btn.TextColor3 = Theme.Text
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    corner(btn, 10)
+    presetButtons[i] = btn
+    bind(btn.MouseButton1Click, function()
+        setWindowSize(p.w, p.h, true)
+        saveSize()
+    end)
+end
+
+local function isPress(input)
+    return input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch
+end
+
+-- Slider: geser untuk memilih, lepas untuk menerapkan ukuran.
+local function sizeSlider(order, titleText, axis)
+    local holder = Instance.new("Frame")
+    holder.Parent = sizeScroll
+    holder.LayoutOrder = order
+    holder.Size = UDim2.new(1, 0, 0, 58)
+    holder.BackgroundColor3 = Theme.Raised
+    holder.BorderSizePixel = 0
+    corner(holder, 12)
+
+    local title = label(holder, titleText, 13, Theme.Text, Enum.Font.GothamMedium)
+    title.Position = UDim2.fromOffset(12, 6)
+    title.Size = UDim2.new(0.5, -12, 0, 18)
+
+    local valueLabel = label(holder, "", 13, Theme.Accent, Enum.Font.GothamBold)
+    valueLabel.Position = UDim2.new(0.5, 0, 0, 6)
+    valueLabel.Size = UDim2.new(0.5, -12, 0, 18)
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+
+    local track = Instance.new("TextButton")
+    track.Parent = holder
+    track.Position = UDim2.new(0, 12, 0, 30)
+    track.Size = UDim2.new(1, -24, 0, 22)
+    track.BackgroundTransparency = 1
+    track.Text = ""
+    track.AutoButtonColor = false
+    track.BorderSizePixel = 0
+
+    local rail = Instance.new("Frame")
+    rail.Parent = track
+    rail.AnchorPoint = Vector2.new(0, 0.5)
+    rail.Position = UDim2.new(0, 0, 0.5, 0)
+    rail.Size = UDim2.new(1, 0, 0, 4)
+    rail.BackgroundColor3 = Theme.Line
+    rail.BorderSizePixel = 0
+    corner(rail, 2)
+
+    local fill = Instance.new("Frame")
+    fill.Parent = rail
+    fill.Size = UDim2.new(0, 0, 1, 0)
+    fill.BackgroundColor3 = Theme.Accent
+    fill.BorderSizePixel = 0
+    corner(fill, 2)
+
+    local knob = Instance.new("Frame")
+    knob.Parent = track
+    knob.AnchorPoint = Vector2.new(0.5, 0.5)
+    knob.Position = UDim2.new(0, 0, 0.5, 0)
+    knob.Size = UDim2.fromOffset(18, 18)
+    knob.BackgroundColor3 = Theme.Text
+    knob.BorderSizePixel = 0
+    corner(knob, 9)
+
+    local dragging = false
+    local dragInput = nil
+    local pending = nil
+
+    local function range()
+        local vp = getViewport()
+        if axis == "w" then
+            return MIN_W, math.max(MIN_W + 40, math.floor(vp.X - 16))
+        end
+        return MIN_H, math.max(MIN_H + 40, math.floor(vp.Y - 16))
+    end
+
+    local function show(value)
+        local lo, hi = range()
+        local f = math.clamp((value - lo) / (hi - lo), 0, 1)
+        fill.Size = UDim2.new(f, 0, 1, 0)
+        knob.Position = UDim2.new(f, 0, 0.5, 0)
+        valueLabel.Text = tostring(math.floor(value + 0.5)) .. " px"
+    end
+
+    local function fromX(x)
+        local lo, hi = range()
+        local f = math.clamp((x - track.AbsolutePosition.X) / math.max(1, track.AbsoluteSize.X), 0, 1)
+        pending = lo + (hi - lo) * f
+        show(pending)
+    end
+
+    table.insert(sizeListeners, function()
+        if not dragging then
+            show(axis == "w" and winW or winH)
+        end
+    end)
+
+    bind(track.InputBegan, function(input)
+        if isPress(input) then
+            dragging = true
+            dragInput = input
+            sizeScroll.ScrollingEnabled = false
+            fromX(input.Position.X)
+        end
+    end)
+
+    bind(UserInputService.InputChanged, function(input)
+        if not dragging then
+            return
+        end
+        local t = input.UserInputType
+        if t == Enum.UserInputType.MouseMovement or (t == Enum.UserInputType.Touch and input == dragInput) then
+            fromX(input.Position.X)
+        end
+    end)
+
+    bind(UserInputService.InputEnded, function(input)
+        if not dragging then
+            return
+        end
+        local t = input.UserInputType
+        if input == dragInput or (t == Enum.UserInputType.MouseButton1 and dragInput.UserInputType == Enum.UserInputType.MouseButton1) then
+            dragging = false
+            dragInput = nil
+            sizeScroll.ScrollingEnabled = true
+            local value = pending
+            pending = nil
+            if value then
+                if axis == "w" then
+                    setWindowSize(value, winH, true)
+                else
+                    setWindowSize(winW, value, true)
+                end
+                saveSize()
+            end
+        end
+    end)
+
+    return holder
+end
+
+sizeSlider(4, "Lebar", "w")
+sizeSlider(5, "Tinggi", "h")
+
+local resetBtn = Instance.new("TextButton")
+resetBtn.Parent = sizeScroll
+resetBtn.LayoutOrder = 6
+resetBtn.Size = UDim2.new(1, 0, 0, 46)
+resetBtn.BackgroundColor3 = Theme.Raised
+resetBtn.Text = "Kembalikan ukuran awal"
+resetBtn.TextColor3 = Theme.Text
+resetBtn.Font = Enum.Font.GothamBold
+resetBtn.TextSize = 14
+resetBtn.AutoButtonColor = false
+resetBtn.BorderSizePixel = 0
+corner(resetBtn, 12)
+hoverColor(resetBtn, Theme.Raised, lighten(Theme.Raised, 0.1))
+
+bind(resetBtn.MouseButton1Click, function()
+    resetSavedSize()
+    Main.Position = UDim2.new(0.5, 0, 0.46, 0)
+    local w, h = defaultSize()
+    setWindowSize(w, h, true)
+end)
+
+local sizeTip = label(sizeScroll, "Tip: seret titik-titik di pojok kanan bawah jendela untuk resize langsung.", 12, Theme.Muted, Enum.Font.Gotham)
+sizeTip.LayoutOrder = 7
+sizeTip.Size = UDim2.new(1, 0, 0, 32)
+sizeTip.TextWrapped = true
+sizeTip.TextYAlignment = Enum.TextYAlignment.Top
+
+table.insert(sizeListeners, function()
+    sizeReadout.Text = tostring(winW) .. " x " .. tostring(winH)
+    local matched = false
+    for i, p in ipairs(presets) do
+        local pw, ph = clampSize(p.w, p.h)
+        local on = (not matched) and pw == winW and ph == winH
+        if on then
+            matched = true
+        end
+        presetButtons[i].BackgroundColor3 = on and Theme.Accent or Theme.Raised
+        presetButtons[i].TextColor3 = on and Theme.AccentInk or Theme.Text
+    end
+end)
+
 showTab("Home")
 makeDraggable(Main, Topbar)
 local consumeBubbleDrag = makeDraggable(Bubble, Bubble)
 
 local function minimize()
+    windowOpen = false
+    if sizeTween then
+        sizeTween:Cancel()
+        sizeTween = nil
+    end
     local shrink = TweenService:Create(Main, openInfo, { Size = UDim2.fromOffset(0, 0) })
     shrink:Play()
     shrink.Completed:Wait()
@@ -1194,7 +1629,10 @@ local function restore()
     end
     Bubble.Visible = false
     Main.Visible = true
-    TweenService:Create(Main, openInfo, { Size = targetSize }):Play()
+    keepOnScreen(winW, winH)
+    windowOpen = true
+    sizeTween = TweenService:Create(Main, openInfo, { Size = targetSize })
+    sizeTween:Play()
 end
 
 bind(MinimizeBtn.MouseButton1Click, function()
@@ -1226,7 +1664,17 @@ end)
 task.wait(3)
 
 if alive and Main.Parent then
-    TweenService:Create(Main, openInfo, { Size = targetSize }):Play()
+    local savedW, savedH = loadSize()
+    if savedW and savedH then
+        setWindowSize(savedW, savedH)
+    else
+        local w, h = defaultSize()
+        setWindowSize(w, h)
+    end
+    keepOnScreen(winW, winH)
+    windowOpen = true
+    sizeTween = TweenService:Create(Main, openInfo, { Size = targetSize })
+    sizeTween:Play()
     local fadeInfo = TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
     TweenService:Create(loadingBg, fadeInfo, { BackgroundTransparency = 1 }):Play()
     TweenService:Create(loadingTitle, fadeInfo, { TextTransparency = 1 }):Play()
