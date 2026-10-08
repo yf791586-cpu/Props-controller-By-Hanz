@@ -743,7 +743,14 @@ local musicList = {
     {id = "115037829965347", name = "DJ-BATTLE-PERDAMAIAN-YANG-DI-PAKAI-BP-AUDIO"},
     {id = "91630275902282", name = "DJ-BETTEL-TUTUK-PANCI-TJAP-RADAR-KAPAL"},
     {id = "137339157733851", name = "Dj-lali-judul"},
-    {id = "96082404733673", name = "Stucy-Mix-Dangdut-pt3"},
+    {= "96082404733673", name = "Stucy-Mix-Dangdut-pt3"},
+    {id = "89850019057562", name = "New"},
+    {id = "114549231178439", name = "New"},
+    {id = "93966344127430", name = "New"},
+    {id = "120733006394727", name = "New"},
+    {id = "103765309710247", name = "New"},
+    {id = "110273485966406", name = "New"},
+    {id = "90089940136467", name = "New"},
     -- [BOT_INSERT_HERE]
 }
 
