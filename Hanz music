@@ -1,258 +1,132 @@
 -- ==============================================================================
--- LOCAL SCRIPT: HANZ GUI WITH LOADING SCREEN
+-- HANZ MUSIC
+-- Judul jendela: Hanz Music
+-- Bubble minimize: kiri layar, sedikit di atas tengah (aman dari tombol lompat).
+-- Bisa digeser. Favorit tetap tersimpan di HanzGui_Favorites.json
 -- ==============================================================================
+
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 
-local Player = Players.LocalPlayer
-local playerName = Player.Name
--- Hapus Loading GUI lama jika ada (Auto-Refresh)
-for _, gui in pairs(CoreGui:GetChildren()) do
-    if gui.Name == "HanzLoadingGui" then
-        gui:Destroy()
+local function guiParent()
+    local ok, hui = pcall(function()
+        if typeof(gethui) == "function" then
+            return gethui()
+        end
+        return nil
+    end)
+    if ok and typeof(hui) == "Instance" then
+        return hui
     end
+    return CoreGui
 end
 
--- 1. Buat ScreenGui Utama (Diletakkan di CoreGui agar aman)
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "HanzLoadingGui"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = CoreGui -- [FIX] Mengubah playerGui menjadi CoreGui
+local Parent = guiParent()
 
--- 2. Buat Background (Layar Gelap Transparan)
-local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(1, 0, 1, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-mainFrame.BackgroundTransparency = 0.15
-mainFrame.BorderSizePixel = 0
-mainFrame.Parent = screenGui
-
--- 3. Judul "Hanz Music Loading...."
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Name = "TitleLabel"
-titleLabel.Size = UDim2.new(0, 400, 0, 50)
-titleLabel.Position = UDim2.new(0.5, 0, 0.4, -30)
-titleLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "Hanz Music Loading...."
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.TextSize = 28
-titleLabel.Font = Enum.Font.GothamBold
-titleLabel.Parent = mainFrame
-
--- 4. Stiker Loading Berputar (Menggunakan ImageLabel)
-local spinner = Instance.new("ImageLabel")
-spinner.Name = "LoadingSpinner"
-spinner.Size = UDim2.new(0, 60, 0, 60)
-spinner.Position = UDim2.new(0.5, 0, 0.5, 30)
-spinner.AnchorPoint = Vector2.new(0.5, 0.5)
-spinner.BackgroundTransparency = 1
--- ID Stiker/Ikon Spinner Roblox 
-spinner.Image = "rbxassetid://10141932378" 
-spinner.Parent = mainFrame
-
-----------------------------------------------------
--- ANIMASI & LOGIKA WAKTU (3 DETIK)
-----------------------------------------------------
-
--- Membuat Animasi Putaran 360 Derajat
-local tweenInfo = TweenInfo.new(
-	1,                          -- Waktu 1 putaran penuh (1 detik)
-	Enum.EasingStyle.Linear,     -- Kecepatan konstan
-	Enum.EasingDirection.InOut, 
-	-1                          -- Berulang terus menerus
-)
-
-local spinTween = TweenService:Create(spinner, tweenInfo, {Rotation = 360})
-spinTween:Play()
-
--- Tunggu Selama 3 Detik
-task.wait(3)
-
-----------------------------------------------------
--- SCRIPT BERIKUTNYA DIMULAI DI SINI
-----------------------------------------------------
-print("Loading Selesai! Menjalankan HanzGui Modern...")
-
--- ==============================================================================
--- HANZ GUI - MODERN UI FRAMEWORK (UPDATE: SAVE/LOAD FAVORITES & CUSTOM MUSIC NAMES)
--- Fitur: Save Favorite Permanen, Custom TextBox, Green Play Button, No-Stuck Scroll
--- ==============================================================================
-
--- Cek jika GUI sudah ada, hapus yang lama (Auto-Refresh)
-for _, gui in pairs(CoreGui:GetChildren()) do
-    if gui.Name == "HanzGui_Modern" then
-        gui:Destroy()
-    end
-end
-
--- ==========================================
--- SISTEM SAVE/LOAD FAVORITE (JSON)
--- ==========================================
-local SaveFileName = "HanzGui_Favorites.json"
-local SavedFavorites = {}
-
--- Fungsi untuk membaca file simpanan
-pcall(function()
-    if isfile and isfile(SaveFileName) then
-        local data = readfile(SaveFileName)
-        SavedFavorites = HttpService:JSONDecode(data)
-    end
-end)
-
--- Fungsi untuk menyimpan perubahan ke file
-local function SaveFavoritesToFile()
+local function protect(gui)
     pcall(function()
-        if writefile then
-            local data = HttpService:JSONEncode(SavedFavorites)
-            writefile(SaveFileName, data)
+        if syn and syn.protect_gui then
+            syn.protect_gui(gui)
+        elseif gethui then
+            -- already parented to gethui when available
         end
     end)
 end
 
--- ==========================================
--- PENGATURAN TEMA WARNA
--- ==========================================
+for _, gui in ipairs(Parent:GetChildren()) do
+    if gui.Name == "HanzMusicGui" or gui.Name == "HanzMusicLoading" or gui.Name == "HanzLoadingGui" or gui.Name == "HanzGui_Modern" then
+        gui:Destroy()
+    end
+end
+
 local Theme = {
-    Background = Color3.fromRGB(15, 15, 20),
-    Sidebar = Color3.fromRGB(20, 20, 25),
-    Topbar = Color3.fromRGB(25, 25, 30),
-    Accent = Color3.fromRGB(99, 102, 241),
-    Text = Color3.fromRGB(255, 255, 255),
-    TextDark = Color3.fromRGB(150, 150, 150),
-    ElementBg = Color3.fromRGB(30, 30, 35),
-    Hover = Color3.fromRGB(40, 40, 45)
+    Ink = Color3.fromRGB(14, 15, 18),
+    Panel = Color3.fromRGB(23, 24, 29),
+    Raised = Color3.fromRGB(38, 40, 48),
+    Line = Color3.fromRGB(58, 61, 70),
+    Text = Color3.fromRGB(244, 242, 234),
+    Muted = Color3.fromRGB(177, 174, 164),
+    Accent = Color3.fromRGB(61, 207, 142),
+    AccentInk = Color3.fromRGB(6, 33, 22),
+    Danger = Color3.fromRGB(180, 35, 24),
 }
 
--- ==========================================
--- MEMBUAT GUI UTAMA
--- ==========================================
-local HanzGui = Instance.new("ScreenGui")
-HanzGui.Name = "HanzGui_Modern"
-HanzGui.Parent = CoreGui
-HanzGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-HanzGui.ResetOnSpawn = false
+local connections = {}
+local alive = true
 
-local Bubble = Instance.new("ImageButton")
-Bubble.Name = "FloatingBubble"
-Bubble.Parent = HanzGui
-Bubble.Size = UDim2.new(0, 0, 0, 0)
-Bubble.Position = UDim2.new(0.5, -25, 0, 20)
-Bubble.AnchorPoint = Vector2.new(0.5, 0.5)
-Bubble.BackgroundColor3 = Theme.Accent
-Bubble.Image = "rbxassetid://6031090690"
-Bubble.Visible = false
-Bubble.AutoButtonColor = false
-Instance.new("UICorner", Bubble).CornerRadius = UDim.new(1, 0)
+local function bind(signal, fn)
+    local conn = signal:Connect(fn)
+    table.insert(connections, conn)
+    return conn
+end
 
-local BubbleStroke = Instance.new("UIStroke")
-BubbleStroke.Color = Color3.fromRGB(255, 255, 255)
-BubbleStroke.Thickness = 2
-BubbleStroke.Transparency = 0.5
-BubbleStroke.Parent = Bubble
+local function corner(parent, radius)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, radius)
+    c.Parent = parent
+    return c
+end
 
-local MainFrameUI = Instance.new("Frame") -- [FIX] Ganti nama jadi MainFrameUI agar tidak bentrok
-MainFrameUI.Name = "MainFrame"
-MainFrameUI.Parent = HanzGui
-MainFrameUI.Size = UDim2.new(0, 500, 0, 300)
-MainFrameUI.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrameUI.BackgroundColor3 = Theme.Background
-MainFrameUI.ClipsDescendants = true
-MainFrameUI.AnchorPoint = Vector2.new(0.5, 0.5)
-Instance.new("UICorner", MainFrameUI).CornerRadius = UDim.new(0, 8)
+local function stroke(parent, color, thickness, transparency)
+    local s = Instance.new("UIStroke")
+    s.Color = color
+    s.Thickness = thickness or 1
+    s.Transparency = transparency or 0
+    s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    s.Parent = parent
+    return s
+end
 
-local MainStroke = Instance.new("UIStroke")
-MainStroke.Color = Theme.Accent
-MainStroke.Thickness = 1
-MainStroke.Parent = MainFrameUI
+local function label(parent, text, size, color, font)
+    local l = Instance.new("TextLabel")
+    l.BackgroundTransparency = 1
+    l.BorderSizePixel = 0
+    l.Font = font or Enum.Font.GothamMedium
+    l.TextSize = size or 14
+    l.TextColor3 = color or Theme.Text
+    l.TextXAlignment = Enum.TextXAlignment.Left
+    l.TextYAlignment = Enum.TextYAlignment.Center
+    l.TextTruncate = Enum.TextTruncate.AtEnd
+    l.Text = text or ""
+    l.Parent = parent
+    return l
+end
 
-local Topbar = Instance.new("Frame")
-Topbar.Name = "Topbar"
-Topbar.Parent = MainFrameUI
-Topbar.Size = UDim2.new(1, 0, 0, 35)
-Topbar.BackgroundColor3 = Theme.Topbar
-Topbar.BorderSizePixel = 0
-Instance.new("UICorner", Topbar).CornerRadius = UDim.new(0, 8)
+local function lighten(color, amount)
+    return Color3.new(
+        color.R + (1 - color.R) * amount,
+        color.G + (1 - color.G) * amount,
+        color.B + (1 - color.B) * amount
+    )
+end
 
-local TopFix = Instance.new("Frame")
-TopFix.Size = UDim2.new(1, 0, 0, 8)
-TopFix.Position = UDim2.new(0, 0, 1, -8)
-TopFix.BackgroundColor3 = Theme.Topbar
-TopFix.BorderSizePixel = 0
-TopFix.Parent = Topbar
+local function hoverColor(btn, base, hot)
+    bind(btn.MouseEnter, function()
+        TweenService:Create(btn, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            BackgroundColor3 = hot,
+        }):Play()
+    end)
+    bind(btn.MouseLeave, function()
+        TweenService:Create(btn, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            BackgroundColor3 = base,
+        }):Play()
+    end)
+end
 
-local Title = Instance.new("TextLabel")
-Title.Parent = Topbar
-Title.Size = UDim2.new(1, -100, 1, 0)
-Title.Position = UDim2.new(0, 15, 0, 0)
-Title.BackgroundTransparency = 1
-Title.Text = "Hanz Muzikk!"
-Title.TextColor3 = Theme.Accent
-Title.TextSize = 16
-Title.Font = Enum.Font.GothamBold
-Title.TextXAlignment = Enum.TextXAlignment.Left
+local function makeDraggable(guiObject, handle)
+    local dragging = false
+    local moved = false
+    local dragStart
+    local startPos
+    local dragInput
 
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Parent = Topbar
-CloseBtn.Size = UDim2.new(0, 35, 0, 35)
-CloseBtn.Position = UDim2.new(1, -35, 0, 0)
-CloseBtn.BackgroundTransparency = 1
-CloseBtn.Text = "X"
-CloseBtn.TextColor3 = Theme.TextDark
-CloseBtn.TextSize = 14
-CloseBtn.Font = Enum.Font.GothamBold
-
-local MinimizeBtn = Instance.new("TextButton")
-MinimizeBtn.Parent = Topbar
-MinimizeBtn.Size = UDim2.new(0, 35, 0, 35)
-MinimizeBtn.Position = UDim2.new(1, -70, 0, 0)
-MinimizeBtn.BackgroundTransparency = 1
-MinimizeBtn.Text = "-"
-MinimizeBtn.TextColor3 = Theme.TextDark
-MinimizeBtn.TextSize = 18
-MinimizeBtn.Font = Enum.Font.GothamBold
-
-local Sidebar = Instance.new("Frame")
-Sidebar.Parent = MainFrameUI
-Sidebar.Size = UDim2.new(0, 120, 1, -35)
-Sidebar.Position = UDim2.new(0, 0, 0, 35)
-Sidebar.BackgroundColor3 = Theme.Sidebar
-Sidebar.BorderSizePixel = 0
-
-local SidebarLayout = Instance.new("UIListLayout")
-SidebarLayout.Parent = Sidebar
-SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
-SidebarLayout.Padding = UDim.new(0, 5)
-
-local SidebarPadding = Instance.new("UIPadding")
-SidebarPadding.Parent = Sidebar
-SidebarPadding.PaddingTop = UDim.new(0, 10)
-SidebarPadding.PaddingLeft = UDim.new(0, 10)
-SidebarPadding.PaddingRight = UDim.new(0, 10)
-
-local ContentArea = Instance.new("Frame")
-ContentArea.Parent = MainFrameUI
-ContentArea.Size = UDim2.new(1, -120, 1, -35)
-ContentArea.Position = UDim2.new(0, 120, 0, 35)
-ContentArea.BackgroundTransparency = 1
-
--- ==========================================
--- FUNGSI DRAG (MOBILE & PC FRIENDLY)
--- ==========================================
-local function MakeDraggable(guiObject, handle)
-    local dragging, dragInput, dragStart, startPos
-    local function update(input)
-        local delta = input.Position - dragStart
-        guiObject.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-    handle.InputBegan:Connect(function(input)
+    bind(handle.InputBegan, function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
+            moved = false
             dragStart = input.Position
             startPos = guiObject.Position
             input.Changed:Connect(function()
@@ -262,313 +136,117 @@ local function MakeDraggable(guiObject, handle)
             end)
         end
     end)
-    guiObject.InputChanged:Connect(function(input)
+
+    bind(handle.InputChanged, function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             dragInput = input
         end
     end)
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            update(input)
-        end
-    end)
-end
 
-MakeDraggable(MainFrameUI, Topbar)
-MakeDraggable(Bubble, Bubble)
-
--- ==========================================
--- ANIMASI WINDOW
--- ==========================================
-local windowTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-MainFrameUI.Size = UDim2.new(0, 0, 0, 0)
-TweenService:Create(MainFrameUI, windowTweenInfo, {Size = UDim2.new(0, 500, 0, 300)}):Play()
-
-CloseBtn.MouseButton1Click:Connect(function()
-    local closeAnim = TweenService:Create(MainFrameUI, windowTweenInfo, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
-    closeAnim:Play()
-    closeAnim.Completed:Wait()
-    HanzGui:Destroy()
-end)
-
-MinimizeBtn.MouseButton1Click:Connect(function()
-    TweenService:Create(MainFrameUI, windowTweenInfo, {Size = UDim2.new(0, 0, 0, 0)}):Play()
-    task.wait(0.2)
-    MainFrameUI.Visible = false
-    Bubble.Visible = true
-    TweenService:Create(Bubble, windowTweenInfo, {Size = UDim2.new(0, 50, 0, 50)}):Play()
-end)
-
-Bubble.MouseButton1Click:Connect(function()
-    local hideBubble = TweenService:Create(Bubble, windowTweenInfo, {Size = UDim2.new(0, 0, 0, 0)})
-    hideBubble:Play()
-    hideBubble.Completed:Wait()
-    Bubble.Visible = false
-    MainFrameUI.Visible = true
-    TweenService:Create(MainFrameUI, windowTweenInfo, {Size = UDim2.new(0, 500, 0, 300)}):Play()
-end)
-
-local function ApplyHover(btn, hoverColor)
-    local originalColor = btn.TextColor3
-    btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {TextColor3 = hoverColor}):Play() end)
-    btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {TextColor3 = originalColor}):Play() end)
-end
-ApplyHover(CloseBtn, Color3.fromRGB(255, 50, 50))
-ApplyHover(MinimizeBtn, Theme.Accent)
-
--- ==========================================
--- FUNGSI MEMBUAT ELEMEN GUI & TAB
--- ==========================================
-local Pages = {}
-local activeTab = nil
-
-local function CreateTab(tabName)
-    local TabBtn = Instance.new("TextButton")
-    TabBtn.Parent = Sidebar
-    TabBtn.Size = UDim2.new(1, 0, 0, 30)
-    TabBtn.BackgroundColor3 = Theme.ElementBg
-    TabBtn.Text = tabName
-    TabBtn.TextColor3 = Theme.TextDark
-    TabBtn.Font = Enum.Font.GothamSemibold
-    TabBtn.TextSize = 12
-    TabBtn.AutoButtonColor = false
-    Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
-
-    local Page = Instance.new("ScrollingFrame")
-    Page.Parent = ContentArea
-    Page.Size = UDim2.new(1, 0, 1, 0)
-    Page.BackgroundTransparency = 1
-    Page.ScrollBarThickness = 3
-    Page.Visible = false
-    Page.BorderSizePixel = 0
-
-    local PageLayout = Instance.new("UIListLayout")
-    PageLayout.Parent = Page
-    PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    PageLayout.Padding = UDim.new(0, 8)
-
-    local PagePadding = Instance.new("UIPadding")
-    PagePadding.Parent = Page
-    PagePadding.PaddingTop = UDim.new(0, 10)
-    PagePadding.PaddingLeft = UDim.new(0, 10)
-    PagePadding.PaddingRight = UDim.new(0, 10)
-
-    -- Perbaikan Scroll Stuck
-    PageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        Page.CanvasSize = UDim2.new(0, 0, 0, PageLayout.AbsoluteContentSize.Y + 20)
-    end)
-
-    TabBtn.MouseButton1Click:Connect(function()
-        for _, p in pairs(Pages) do
-            p.Page.Visible = false
-            TweenService:Create(p.Btn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.ElementBg, TextColor3 = Theme.TextDark}):Play()
-        end
-        Page.Visible = true
-        TweenService:Create(TabBtn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.Accent, TextColor3 = Theme.Text}):Play()
-    end)
-
-    if not activeTab then
-        activeTab = true
-        Page.Visible = true
-        TabBtn.BackgroundColor3 = Theme.Accent
-        TabBtn.TextColor3 = Theme.Text
-    end
-
-    table.insert(Pages, {Btn = TabBtn, Page = Page})
-    local Elements = {}
-
-    function Elements:CreateTextBox(placeholderText)
-        local TextBox = Instance.new("TextBox")
-        TextBox.Parent = Page
-        TextBox.Size = UDim2.new(1, 0, 0, 35)
-        TextBox.BackgroundColor3 = Theme.ElementBg
-        TextBox.Text = ""
-        TextBox.PlaceholderText = placeholderText
-        TextBox.TextColor3 = Theme.Text
-        TextBox.PlaceholderColor3 = Theme.TextDark
-        TextBox.Font = Enum.Font.Gotham
-        TextBox.TextSize = 13
-        TextBox.ClearTextOnFocus = false
-        Instance.new("UICorner", TextBox).CornerRadius = UDim.new(0, 6)
-
-        TextBox.MouseEnter:Connect(function() TweenService:Create(TextBox, TweenInfo.new(0.2), {BackgroundColor3 = Theme.Hover}):Play() end)
-        TextBox.MouseLeave:Connect(function() TweenService:Create(TextBox, TweenInfo.new(0.2), {BackgroundColor3 = Theme.ElementBg}):Play() end)
-        return TextBox
-    end
-
-    function Elements:CreateButton(btnText, callback, customBgColor)
-        local baseColor = customBgColor or Theme.ElementBg
-        local r = math.clamp(math.floor((baseColor.R * 255) + 20), 0, 255)
-        local g = math.clamp(math.floor((baseColor.G * 255) + 20), 0, 255)
-        local b = math.clamp(math.floor((baseColor.B * 255) + 20), 0, 255)
-        local hoverColor = customBgColor and Color3.fromRGB(r, g, b) or Theme.Hover
-
-        local Btn = Instance.new("TextButton")
-        Btn.Parent = Page
-        Btn.Size = UDim2.new(1, 0, 0, 35)
-        Btn.BackgroundColor3 = baseColor
-        Btn.Text = btnText
-        Btn.TextColor3 = Theme.Text
-        Btn.Font = Enum.Font.GothamBold
-        Btn.TextSize = 13
-        Btn.AutoButtonColor = false
-        Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
-
-        Btn.MouseEnter:Connect(function() TweenService:Create(Btn, TweenInfo.new(0.2), {BackgroundColor3 = hoverColor}):Play() end)
-        Btn.MouseLeave:Connect(function() TweenService:Create(Btn, TweenInfo.new(0.2), {BackgroundColor3 = baseColor}):Play() end)
-        
-        Btn.MouseButton1Click:Connect(function()
-            local rip = Instance.new("Frame")
-            rip.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            rip.BackgroundTransparency = 0.8
-            rip.Size = UDim2.new(1, 0, 1, 0)
-            Instance.new("UICorner", rip).CornerRadius = UDim.new(0, 6)
-            rip.Parent = Btn
-            local ripTween = TweenService:Create(rip, TweenInfo.new(0.3), {BackgroundTransparency = 1, Size = UDim2.new(1.1, 0, 1.5, 0)})
-            ripTween:Play()
-            ripTween.Completed:Connect(function() rip:Destroy() end)
-            if callback then callback() end
-        end)
-        return Btn
-    end
-
-    function Elements:CreateMusicRow(btnText, musicId, callback, targetFavTab)
-        local Row = Instance.new("Frame")
-        Row.Parent = Page
-        Row.Size = UDim2.new(1, 0, 0, 35)
-        Row.BackgroundTransparency = 1
-
-        local MainBtn = Instance.new("TextButton")
-        MainBtn.Parent = Row
-        MainBtn.Size = UDim2.new(1, -40, 1, 0)
-        MainBtn.BackgroundColor3 = Theme.ElementBg
-        MainBtn.Text = btnText
-        MainBtn.TextColor3 = Theme.Text
-        MainBtn.Font = Enum.Font.Gotham
-        MainBtn.TextSize = 13
-        MainBtn.AutoButtonColor = false
-        Instance.new("UICorner", MainBtn).CornerRadius = UDim.new(0, 6)
-
-        local HeartBtn = Instance.new("TextButton")
-        HeartBtn.Parent = Row
-        HeartBtn.Size = UDim2.new(0, 35, 1, 0)
-        HeartBtn.Position = UDim2.new(1, -35, 0, 0)
-        HeartBtn.BackgroundColor3 = Theme.ElementBg
-        HeartBtn.Font = Enum.Font.Gotham
-        HeartBtn.TextSize = 16
-        HeartBtn.AutoButtonColor = false
-        Instance.new("UICorner", HeartBtn).CornerRadius = UDim.new(0, 6)
-
-        MainBtn.MouseEnter:Connect(function() TweenService:Create(MainBtn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.Hover}):Play() end)
-        MainBtn.MouseLeave:Connect(function() TweenService:Create(MainBtn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.ElementBg}):Play() end)
-        HeartBtn.MouseEnter:Connect(function() TweenService:Create(HeartBtn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.Hover}):Play() end)
-        HeartBtn.MouseLeave:Connect(function() TweenService:Create(HeartBtn, TweenInfo.new(0.2), {BackgroundColor3 = Theme.ElementBg}):Play() end)
-
-        MainBtn.MouseButton1Click:Connect(function()
-            local rip = Instance.new("Frame")
-            rip.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            rip.BackgroundTransparency = 0.8
-            rip.Size = UDim2.new(1, 0, 1, 0)
-            Instance.new("UICorner", rip).CornerRadius = UDim.new(0, 6)
-            rip.Parent = MainBtn
-            local ripTween = TweenService:Create(rip, TweenInfo.new(0.3), {BackgroundTransparency = 1, Size = UDim2.new(1.1, 0, 1.5, 0)})
-            ripTween:Play()
-            ripTween.Completed:Connect(function() rip:Destroy() end)
-            if callback then callback() end
-        end)
-
-        local isFav = SavedFavorites[musicId] == true
-        local favButtonRef = nil
-
-        if isFav then
-            HeartBtn.Text = "❌"
-            if targetFavTab then
-                favButtonRef = targetFavTab:CreateButton(btnText, callback)
+    bind(UserInputService.InputChanged, function(input)
+        if input == dragInput and dragging and startPos and dragStart then
+            local delta = input.Position - dragStart
+            if delta.Magnitude > 6 then
+                moved = true
             end
-        else
-            HeartBtn.Text = "❤️"
+            guiObject.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
         end
+    end)
 
-        HeartBtn.MouseButton1Click:Connect(function()
-            isFav = not isFav
-            if isFav then
-                HeartBtn.Text = "❌"
-                SavedFavorites[musicId] = true
-                SaveFavoritesToFile()
-                if targetFavTab then
-                    favButtonRef = targetFavTab:CreateButton(btnText, callback)
-                end
-            else
-                HeartBtn.Text = "❤️"
-                SavedFavorites[musicId] = nil
-                SaveFavoritesToFile()
-                if favButtonRef then
-                    favButtonRef:Destroy()
-                    favButtonRef = nil
-                end
-            end
-        end)
-
-        return Row
+    return function()
+        local didMove = moved
+        moved = false
+        return didMove
     end
-
-    return Elements
 end
 
 -- ==========================================
--- SETUP TAB CONTENT (URUTAN: HOME -> MUSIC ID -> FAVORITE)
+-- LOADING
 -- ==========================================
+local loadingGui = Instance.new("ScreenGui")
+loadingGui.Name = "HanzMusicLoading"
+loadingGui.ResetOnSpawn = false
+loadingGui.IgnoreGuiInset = true
+loadingGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+loadingGui.DisplayOrder = 1000
+loadingGui.Parent = Parent
+protect(loadingGui)
 
-local TabHome = CreateTab("Home")
-local TabMusic = CreateTab("Music ID")
-local TabFavorite = CreateTab("Favorite") 
+local loadingBg = Instance.new("Frame")
+loadingBg.Size = UDim2.new(1, 0, 1, 0)
+loadingBg.BackgroundColor3 = Theme.Ink
+loadingBg.BorderSizePixel = 0
+loadingBg.Parent = loadingGui
+
+local loadingTitle = label(loadingBg, "Hanz Music", 32, Theme.Accent, Enum.Font.GothamBold)
+loadingTitle.AnchorPoint = Vector2.new(0.5, 0.5)
+loadingTitle.Position = UDim2.new(0.5, 0, 0.46, 0)
+loadingTitle.Size = UDim2.new(0, 320, 0, 40)
+loadingTitle.TextXAlignment = Enum.TextXAlignment.Center
+
+local loadingSub = label(loadingBg, "Menyiapkan daftar lagu", 14, Theme.Muted, Enum.Font.Gotham)
+loadingSub.AnchorPoint = Vector2.new(0.5, 0.5)
+loadingSub.Position = UDim2.new(0.5, 0, 0.46, 32)
+loadingSub.Size = UDim2.new(0, 320, 0, 20)
+loadingSub.TextXAlignment = Enum.TextXAlignment.Center
+
+local barTrack = Instance.new("Frame")
+barTrack.AnchorPoint = Vector2.new(0.5, 0.5)
+barTrack.Position = UDim2.new(0.5, 0, 0.46, 64)
+barTrack.Size = UDim2.new(0, 180, 0, 4)
+barTrack.BackgroundColor3 = Theme.Raised
+barTrack.BorderSizePixel = 0
+barTrack.Parent = loadingBg
+corner(barTrack, 4)
+
+local barFill = Instance.new("Frame")
+barFill.Size = UDim2.new(0, 0, 1, 0)
+barFill.BackgroundColor3 = Theme.Accent
+barFill.BorderSizePixel = 0
+barFill.Parent = barTrack
+corner(barFill, 4)
+
+TweenService:Create(barFill, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+    Size = UDim2.new(1, 0, 1, 0),
+}):Play()
 
 -- ==========================================
--- ISI TAB: HOME
+-- SAVE / LOAD FAVORIT
 -- ==========================================
+local SaveFileName = "HanzGui_Favorites.json"
+local SavedFavorites = {}
 
-local InputMusicID = TabHome:CreateTextBox("Input Music ID Manual...")
-
-TabHome:CreateButton("▶ Play Music", function()
-    local idToPlay = InputMusicID.Text
-    idToPlay = string.match(idToPlay, "^%s*(.-)%s*$")
-    
-    if idToPlay and idToPlay ~= "" then
-        local Event = ReplicatedStorage:FindFirstChild("RE")
-        if Event and Event:FindFirstChild("1NoMoto1rVehicle1s") then
-            Event["1NoMoto1rVehicle1s"]:FireServer("PickingScooterMusicText", idToPlay, nil, true)
+pcall(function()
+    if isfile and isfile(SaveFileName) then
+        local decoded = HttpService:JSONDecode(readfile(SaveFileName))
+        if type(decoded) == "table" then
+            SavedFavorites = decoded
         end
     end
-end, Color3.fromRGB(46, 204, 113))
-
-TabHome:CreateButton("SkateBoard", function()
-    local Event = ReplicatedStorage:FindFirstChild("RE")
-    if Event and Event:FindFirstChild("1NoMoto1rVehicle1s") then
-        Event["1NoMoto1rVehicle1s"]:FireServer("SkateBoard", nil)
-    end
 end)
 
-TabHome:CreateButton("HeavyBoard", function()
-    local Event = ReplicatedStorage:FindFirstChild("RE")
-    if Event and Event:FindFirstChild("1NoMoto1rVehicle1s") then
-        Event["1NoMoto1rVehicle1s"]:FireServer("SegwaySmall", nil)
-    end
-end)
+local function saveFavorites()
+    pcall(function()
+        if writefile then
+            writefile(SaveFileName, HttpService:JSONEncode(SavedFavorites))
+        end
+    end)
+end
 
-TabHome:CreateButton("DeleteBoard❌", function()
-    local Event = ReplicatedStorage:FindFirstChild("RE")
-    if Event and Event:FindFirstChild("1NoMoto1rVehicle1s") then
-        Event["1NoMoto1rVehicle1s"]:FireServer("Delete NoMotorVehicle")
-    end
-end, Color3.fromRGB(231, 76, 60))
+local function isFav(id)
+    local value = SavedFavorites[tostring(id)]
+    return value ~= nil and value ~= false
+end
 
--- ==========================================
--- ISI TAB: MUSIC ID
--- ==========================================
 local musicList = {
-{id = "9984789656571", name = "phonk"},
-{id = "77063870786604", name = "Chinese"},
-{id = "116704489332329", name = "Verity"},
+    {id = "9984789656571", name = "phonk"},
+    {id = "77063870786604", name = "Chinese"},
+    {id = "116704489332329", name = "Verity"},
     {id = "126759956586913", name = "Where-You-Are"},
     {id = "107082200998987", name = "Lily"},
     {id = "71081898119547", name = "Ronaldo-7"},
@@ -743,7 +421,7 @@ local musicList = {
     {id = "115037829965347", name = "DJ-BATTLE-PERDAMAIAN-YANG-DI-PAKAI-BP-AUDIO"},
     {id = "91630275902282", name = "DJ-BETTEL-TUTUK-PANCI-TJAP-RADAR-KAPAL"},
     {id = "137339157733851", name = "Dj-lali-judul"},
-    {= "96082404733673", name = "Stucy-Mix-Dangdut-pt3"},
+    {id = "96082404733673", name = "Stucy-Mix-Dangdut-pt3"},
     {id = "89850019057562", name = "New"},
     {id = "114549231178439", name = "New"},
     {id = "93966344127430", name = "New"},
@@ -751,39 +429,813 @@ local musicList = {
     {id = "103765309710247", name = "New"},
     {id = "110273485966406", name = "New"},
     {id = "90089940136467", name = "New"},
-    -- [BOT_INSERT_HERE]
 }
 
-
-for i, item in ipairs(musicList) do
-    local buttonTitle = tostring(i) .. ". " .. item.name
-    
-    TabMusic:CreateMusicRow(buttonTitle, item.id, function()
-        local Event = ReplicatedStorage:FindFirstChild("RE")
-        if Event and Event:FindFirstChild("1NoMoto1rVehicle1s") then
-            Event["1NoMoto1rVehicle1s"]:FireServer("PickingScooterMusicText", item.id, nil, true)
-        end
-    end, TabFavorite)
+local function displayName(item)
+    if item.name == nil or item.name == "" then
+        return "Tanpa nama"
+    end
+    return string.gsub(item.name, "-", " ")
 end
 
-----------------------------------------------------
--- HAPUS GUI LOADING (EFEK PUDAR SETELAH MAIN GUI MUNCUL)
-----------------------------------------------------
-local fadeInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-local fadeTween = TweenService:Create(mainFrame, fadeInfo, {BackgroundTransparency = 1})
-local fadeText = TweenService:Create(titleLabel, fadeInfo, {TextTransparency = 1})
-local fadeSpinner = TweenService:Create(spinner, fadeInfo, {ImageTransparency = 1})
+local nameById = {}
+for index, item in ipairs(musicList) do
+    item.index = index
+    nameById[item.id] = displayName(item)
+end
 
-fadeTween:Play()
-fadeText:Play()
-fadeSpinner:Play()
+-- ==========================================
+-- GUI UTAMA
+-- ==========================================
+local HanzGui = Instance.new("ScreenGui")
+HanzGui.Name = "HanzMusicGui"
+HanzGui.ResetOnSpawn = false
+HanzGui.IgnoreGuiInset = true
+HanzGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+HanzGui.DisplayOrder = 999
+HanzGui.Parent = Parent
+protect(HanzGui)
 
-fadeTween.Completed:Connect(function()
-	screenGui:Destroy() -- Menghapus Loading GUI sepenuhnya dari game
+local openInfo = TweenInfo.new(0.34, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+
+local Bubble = Instance.new("TextButton")
+Bubble.Name = "FloatingBubble"
+Bubble.Parent = HanzGui
+Bubble.AnchorPoint = Vector2.new(0, 0.5)
+Bubble.Position = UDim2.new(0, 14, 0.38, 0)
+Bubble.Size = UDim2.fromOffset(0, 0)
+Bubble.BackgroundColor3 = Theme.Accent
+Bubble.Text = "♪"
+Bubble.Font = Enum.Font.GothamBold
+Bubble.TextSize = 26
+Bubble.TextColor3 = Theme.AccentInk
+Bubble.AutoButtonColor = false
+Bubble.Visible = false
+Bubble.ZIndex = 5
+corner(Bubble, 29)
+stroke(Bubble, Theme.Text, 1.5, 0.55)
+
+local Main = Instance.new("Frame")
+Main.Name = "Window"
+Main.Parent = HanzGui
+Main.AnchorPoint = Vector2.new(0.5, 0.5)
+Main.Position = UDim2.new(0.5, 0, 0.46, 0)
+Main.Size = UDim2.new(0, 0, 0, 0)
+Main.BackgroundColor3 = Theme.Panel
+Main.BorderSizePixel = 0
+Main.ClipsDescendants = true
+Main.Active = true
+corner(Main, 18)
+stroke(Main, Theme.Line, 1, 0.15)
+
+local sizeCap = Instance.new("UISizeConstraint")
+sizeCap.MinSize = Vector2.new(260, 320)
+sizeCap.MaxSize = Vector2.new(430, 520)
+sizeCap.Parent = Main
+
+local targetSize = UDim2.new(0.94, 0, 0.72, 0)
+
+local Topbar = Instance.new("Frame")
+Topbar.Name = "Topbar"
+Topbar.Parent = Main
+Topbar.Size = UDim2.new(1, 0, 0, 46)
+Topbar.BackgroundColor3 = Theme.Ink
+Topbar.BorderSizePixel = 0
+Topbar.Active = true
+
+local mark = Instance.new("Frame")
+mark.Size = UDim2.fromOffset(4, 18)
+mark.Position = UDim2.fromOffset(14, 14)
+mark.BackgroundColor3 = Theme.Accent
+mark.BorderSizePixel = 0
+mark.Parent = Topbar
+corner(mark, 2)
+
+local Title = label(Topbar, "Hanz Music", 18, Theme.Text, Enum.Font.GothamBold)
+Title.Position = UDim2.fromOffset(26, 0)
+Title.Size = UDim2.new(1, -120, 1, 0)
+
+local function windowButton(text, x)
+    local btn = Instance.new("TextButton")
+    btn.Parent = Topbar
+    btn.Size = UDim2.fromOffset(36, 36)
+    btn.Position = UDim2.new(1, x, 0, 5)
+    btn.BackgroundColor3 = Theme.Raised
+    btn.Text = text
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 16
+    btn.TextColor3 = Theme.Text
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    corner(btn, 10)
+    return btn
+end
+
+local MinimizeBtn = windowButton("–", -86)
+local CloseBtn = windowButton("×", -44)
+hoverColor(MinimizeBtn, Theme.Raised, lighten(Theme.Raised, 0.12))
+hoverColor(CloseBtn, Theme.Raised, Theme.Danger)
+
+local topLine = Instance.new("Frame")
+topLine.Size = UDim2.new(1, 0, 0, 1)
+topLine.Position = UDim2.new(0, 0, 1, -1)
+topLine.BackgroundColor3 = Theme.Line
+topLine.BorderSizePixel = 0
+topLine.Parent = Topbar
+
+local NowBar = Instance.new("Frame")
+NowBar.Parent = Main
+NowBar.Position = UDim2.fromOffset(0, 46)
+NowBar.Size = UDim2.new(1, 0, 0, 42)
+NowBar.BackgroundColor3 = Theme.Ink
+NowBar.BorderSizePixel = 0
+
+local bars = {}
+for i = 1, 3 do
+    local bar = Instance.new("Frame")
+    bar.AnchorPoint = Vector2.new(0, 1)
+    bar.Position = UDim2.new(0, 14 + (i - 1) * 6, 1, -12)
+    bar.Size = UDim2.fromOffset(3, 8)
+    bar.BackgroundColor3 = Theme.Accent
+    bar.BackgroundTransparency = 0.45
+    bar.BorderSizePixel = 0
+    bar.Parent = NowBar
+    corner(bar, 2)
+    bars[i] = bar
+end
+
+task.spawn(function()
+    while alive do
+        for _, bar in ipairs(bars) do
+            TweenService:Create(bar, TweenInfo.new(0.24, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Size = UDim2.fromOffset(3, math.random(6, 18)),
+            }):Play()
+        end
+        task.wait(0.28)
+    end
 end)
 
--- Mengecek apakah nama player BUKAN "farhan_ppppwu3"
-if playerName ~= "farhan_ppppwu3" then
+local NowTitle = label(NowBar, "Belum memutar", 14, Theme.Text, Enum.Font.GothamBold)
+NowTitle.Position = UDim2.fromOffset(40, 4)
+NowTitle.Size = UDim2.new(1, -52, 0, 18)
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/yf791586-cpu/Props-controller-By-Hanz/refs/heads/main/test"))()
+local NowId = label(NowBar, "Pilih lagu atau tempel ID", 11, Theme.Muted, Enum.Font.Gotham)
+NowId.Position = UDim2.fromOffset(40, 22)
+NowId.Size = UDim2.new(1, -52, 0, 16)
+
+local nowLine = Instance.new("Frame")
+nowLine.Size = UDim2.new(1, 0, 0, 1)
+nowLine.Position = UDim2.new(0, 0, 1, -1)
+nowLine.BackgroundColor3 = Theme.Line
+nowLine.BorderSizePixel = 0
+nowLine.Parent = NowBar
+
+local TabBar = Instance.new("Frame")
+TabBar.Parent = Main
+TabBar.AnchorPoint = Vector2.new(0, 1)
+TabBar.Position = UDim2.new(0, 0, 1, 0)
+TabBar.Size = UDim2.new(1, 0, 0, 54)
+TabBar.BackgroundColor3 = Theme.Ink
+TabBar.BorderSizePixel = 0
+
+local tabLine = Instance.new("Frame")
+tabLine.Size = UDim2.new(1, 0, 0, 1)
+tabLine.BackgroundColor3 = Theme.Line
+tabLine.BorderSizePixel = 0
+tabLine.Parent = TabBar
+
+local Content = Instance.new("Frame")
+Content.Parent = Main
+Content.Position = UDim2.fromOffset(0, 88)
+Content.Size = UDim2.new(1, 0, 1, -142)
+Content.BackgroundTransparency = 1
+Content.BorderSizePixel = 0
+
+local pages = {}
+local tabButtons = {}
+local nameLabels = {}
+local rowStrokes = {}
+local heartButtons = {}
+local currentId = nil
+
+local function rememberName(id, lbl)
+    nameLabels[id] = nameLabels[id] or {}
+    table.insert(nameLabels[id], lbl)
+    if currentId == id then
+        lbl.TextColor3 = Theme.Accent
+    end
+end
+
+local function paintPlaying()
+    local live = {}
+    for _, entry in ipairs(rowStrokes) do
+        if entry.stroke.Parent then
+            local on = entry.id == currentId
+            entry.stroke.Color = on and Theme.Accent or Theme.Line
+            entry.stroke.Transparency = on and 0 or 0.35
+            table.insert(live, entry)
+        end
+    end
+    rowStrokes = live
+    for id, labels in pairs(nameLabels) do
+        local fresh = {}
+        for _, lbl in ipairs(labels) do
+            if lbl.Parent then
+                lbl.TextColor3 = (id == currentId) and Theme.Accent or Theme.Text
+                table.insert(fresh, lbl)
+            end
+        end
+        nameLabels[id] = fresh
+    end
+    for _, bar in ipairs(bars) do
+        bar.BackgroundTransparency = currentId and 0 or 0.45
+    end
+end
+
+local function setPlaying(id, title)
+    currentId = id
+    NowTitle.Text = title
+    NowId.Text = "ID  " .. tostring(id)
+    paintPlaying()
+end
+
+local function getRemote()
+    local folder = ReplicatedStorage:FindFirstChild("RE")
+    local remote = folder and folder:FindFirstChild("1NoMoto1rVehicle1s")
+    if not remote then
+        NowTitle.Text = "Remote tidak ketemu"
+        NowId.Text = "Masuk game dulu, lalu coba lagi"
+        return nil
+    end
+    return remote
+end
+
+local function playId(rawId, title)
+    local id = string.match(tostring(rawId or ""), "^%s*(.-)%s*$") or ""
+    if id == "" then
+        return
+    end
+    local remote = getRemote()
+    if not remote then
+        return
+    end
+    remote:FireServer("PickingScooterMusicText", id, nil, true)
+    local known = nameById[id]
+    setPlaying(id, title or known or "ID manual")
+end
+
+local function paintHeart(id)
+    local list = heartButtons[tostring(id)]
+    if not list then
+        return
+    end
+    local on = isFav(id)
+    for _, btn in ipairs(list) do
+        if btn.Parent then
+            btn.Text = on and "♥" or "♡"
+            btn.TextColor3 = on and Theme.Accent or Theme.Muted
+        end
+    end
+end
+
+local function makeScroll(parent)
+    local scroll = Instance.new("ScrollingFrame")
+    scroll.Parent = parent
+    scroll.Position = UDim2.fromOffset(10, 8)
+    scroll.Size = UDim2.new(1, -20, 1, -16)
+    scroll.BackgroundTransparency = 1
+    scroll.BorderSizePixel = 0
+    scroll.ScrollBarThickness = 4
+    scroll.ScrollBarImageColor3 = Theme.Muted
+    scroll.ScrollingDirection = Enum.ScrollingDirection.Y
+    scroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+    scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    scroll.CanvasSize = UDim2.new()
+    scroll.ElasticBehavior = Enum.ElasticBehavior.Never
+
+    local layout = Instance.new("UIListLayout")
+    layout.Parent = scroll
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Padding = UDim.new(0, 8)
+
+    local pad = Instance.new("UIPadding")
+    pad.Parent = scroll
+    pad.PaddingBottom = UDim.new(0, 8)
+    pad.PaddingTop = UDim.new(0, 2)
+    return scroll
+end
+
+local function createRow(parent, order, indexText, titleText, idText, id, onPlay)
+    local row = Instance.new("Frame")
+    row.Name = "Row"
+    row.Parent = parent
+    row.LayoutOrder = order
+    row.Size = UDim2.new(1, 0, 0, 54)
+    row.BackgroundColor3 = Theme.Raised
+    row.BorderSizePixel = 0
+    row.Active = true
+    corner(row, 12)
+    local rowStroke = stroke(row, Theme.Line, 1, 0.35)
+    table.insert(rowStrokes, { id = id, stroke = rowStroke })
+
+    local hit = Instance.new("TextButton")
+    hit.Parent = row
+    hit.Size = UDim2.new(1, -50, 1, 0)
+    hit.BackgroundTransparency = 1
+    hit.Text = ""
+    hit.AutoButtonColor = false
+
+    local indexLabel = label(row, indexText, 12, Theme.Muted, Enum.Font.GothamBold)
+    indexLabel.Position = UDim2.fromOffset(4, 0)
+    indexLabel.Size = UDim2.fromOffset(36, 54)
+    indexLabel.TextXAlignment = Enum.TextXAlignment.Center
+
+    local nameLabel = label(row, titleText, 14, Theme.Text, Enum.Font.GothamMedium)
+    nameLabel.Position = UDim2.fromOffset(42, 8)
+    nameLabel.Size = UDim2.new(1, -100, 0, 20)
+    rememberName(id, nameLabel)
+
+    local idLabel = label(row, idText, 11, Theme.Muted, Enum.Font.Gotham)
+    idLabel.Position = UDim2.fromOffset(42, 28)
+    idLabel.Size = UDim2.new(1, -100, 0, 16)
+
+    local heart = Instance.new("TextButton")
+    heart.Parent = row
+    heart.AnchorPoint = Vector2.new(1, 0.5)
+    heart.Position = UDim2.new(1, -6, 0.5, 0)
+    heart.Size = UDim2.fromOffset(40, 40)
+    heart.BackgroundTransparency = 1
+    heart.Font = Enum.Font.SourceSansBold
+    heart.TextSize = 20
+    heart.Text = isFav(id) and "♥" or "♡"
+    heart.TextColor3 = isFav(id) and Theme.Accent or Theme.Muted
+    heart.AutoButtonColor = false
+    heartButtons[id] = heartButtons[id] or {}
+    table.insert(heartButtons[id], heart)
+
+    bind(hit.MouseButton1Click, function()
+        if onPlay then
+            onPlay()
+        end
+    end)
+    hoverColor(row, Theme.Raised, lighten(Theme.Raised, 0.08))
+
+    return row, heart
+end
+
+-- Tabs
+local tabNames = { "Home", "Musik", "Favorit", "Board" }
+local tabOrder = { Home = 1, Musik = 2, Favorit = 3, Board = 4 }
+
+for _, tabName in ipairs(tabNames) do
+    local page = Instance.new("Frame")
+    page.Name = tabName
+    page.Parent = Content
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundTransparency = 1
+    page.Visible = false
+    pages[tabName] = page
+
+    local btn = Instance.new("TextButton")
+    btn.Parent = TabBar
+    btn.Size = UDim2.new(0.25, 0, 1, 0)
+    btn.Position = UDim2.new((tabOrder[tabName] - 1) * 0.25, 0, 0, 0)
+    btn.BackgroundTransparency = 1
+    btn.Text = tabName
+    btn.Font = Enum.Font.GothamMedium
+    btn.TextSize = 13
+    btn.TextColor3 = Theme.Muted
+    btn.AutoButtonColor = false
+
+    local indicator = Instance.new("Frame")
+    indicator.Size = UDim2.new(0.4, 0, 0, 3)
+    indicator.Position = UDim2.new(0.3, 0, 0, 0)
+    indicator.BackgroundColor3 = Theme.Accent
+    indicator.BackgroundTransparency = 1
+    indicator.BorderSizePixel = 0
+    indicator.Parent = btn
+    corner(indicator, 2)
+
+    tabButtons[tabName] = { button = btn, indicator = indicator }
+end
+
+local activeTab = "Home"
+
+local function showTab(name)
+    activeTab = name
+    for tabName, page in pairs(pages) do
+        page.Visible = tabName == name
+        local tab = tabButtons[tabName]
+        local on = tabName == name
+        tab.button.TextColor3 = on and Theme.Accent or Theme.Muted
+        tab.indicator.BackgroundTransparency = on and 0 or 1
+    end
+end
+
+for tabName, tab in pairs(tabButtons) do
+    bind(tab.button.MouseButton1Click, function()
+        showTab(tabName)
+    end)
+end
+
+-- HOME
+local home = pages.Home
+local homeLayoutHolder = Instance.new("Frame")
+homeLayoutHolder.Parent = home
+homeLayoutHolder.Position = UDim2.fromOffset(12, 12)
+homeLayoutHolder.Size = UDim2.new(1, -24, 1, -16)
+homeLayoutHolder.BackgroundTransparency = 1
+
+local homeLayout = Instance.new("UIListLayout")
+homeLayout.Parent = homeLayoutHolder
+homeLayout.Padding = UDim.new(0, 8)
+homeLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local homeHint = label(homeLayoutHolder, "Tempel ID, atau pilih dari tab Musik.", 13, Theme.Muted, Enum.Font.Gotham)
+homeHint.LayoutOrder = 1
+homeHint.Size = UDim2.new(1, 0, 0, 18)
+
+local inputWrap = Instance.new("Frame")
+inputWrap.Parent = homeLayoutHolder
+inputWrap.LayoutOrder = 2
+inputWrap.Size = UDim2.new(1, 0, 0, 46)
+inputWrap.BackgroundColor3 = Theme.Raised
+inputWrap.BorderSizePixel = 0
+corner(inputWrap, 12)
+stroke(inputWrap, Theme.Line, 1, 0.2)
+
+local musicInput = Instance.new("TextBox")
+musicInput.Parent = inputWrap
+musicInput.Size = UDim2.new(1, -20, 1, 0)
+musicInput.Position = UDim2.fromOffset(10, 0)
+musicInput.BackgroundTransparency = 1
+musicInput.Text = ""
+musicInput.PlaceholderText = "Tempel Music ID..."
+musicInput.PlaceholderColor3 = Theme.Muted
+musicInput.TextColor3 = Theme.Text
+musicInput.Font = Enum.Font.GothamMedium
+musicInput.TextSize = 15
+musicInput.ClearTextOnFocus = false
+musicInput.TextXAlignment = Enum.TextXAlignment.Left
+
+local playBtn = Instance.new("TextButton")
+playBtn.Parent = homeLayoutHolder
+playBtn.LayoutOrder = 3
+playBtn.Size = UDim2.new(1, 0, 0, 46)
+playBtn.BackgroundColor3 = Theme.Accent
+playBtn.Text = "Putar musik"
+playBtn.TextColor3 = Theme.AccentInk
+playBtn.Font = Enum.Font.GothamBold
+playBtn.TextSize = 15
+playBtn.AutoButtonColor = false
+playBtn.BorderSizePixel = 0
+corner(playBtn, 12)
+hoverColor(playBtn, Theme.Accent, lighten(Theme.Accent, 0.12))
+
+bind(playBtn.MouseButton1Click, function()
+    playId(musicInput.Text, nameById[string.match(musicInput.Text, "^%s*(.-)%s*$") or ""] or "ID manual")
+end)
+
+local homeNote = label(homeLayoutHolder, "ID dikirim ke musik scooter. Favorit tetap tersimpan.", 12, Theme.Muted, Enum.Font.Gotham)
+homeNote.LayoutOrder = 4
+homeNote.Size = UDim2.new(1, 0, 0, 32)
+homeNote.TextWrapped = true
+homeNote.TextYAlignment = Enum.TextYAlignment.Top
+
+-- MUSIK
+local musicPage = pages.Musik
+local musicSearchWrap = Instance.new("Frame")
+musicSearchWrap.Parent = musicPage
+musicSearchWrap.Position = UDim2.fromOffset(10, 8)
+musicSearchWrap.Size = UDim2.new(1, -20, 0, 40)
+musicSearchWrap.BackgroundColor3 = Theme.Raised
+musicSearchWrap.BorderSizePixel = 0
+corner(musicSearchWrap, 12)
+
+local musicSearch = Instance.new("TextBox")
+musicSearch.Parent = musicSearchWrap
+musicSearch.Position = UDim2.fromOffset(12, 0)
+musicSearch.Size = UDim2.new(1, -44, 1, 0)
+musicSearch.BackgroundTransparency = 1
+musicSearch.Text = ""
+musicSearch.PlaceholderText = "Cari lagu atau ID"
+musicSearch.PlaceholderColor3 = Theme.Muted
+musicSearch.TextColor3 = Theme.Text
+musicSearch.Font = Enum.Font.Gotham
+musicSearch.TextSize = 14
+musicSearch.ClearTextOnFocus = false
+musicSearch.TextXAlignment = Enum.TextXAlignment.Left
+
+local musicClear = Instance.new("TextButton")
+musicClear.Parent = musicSearchWrap
+musicClear.AnchorPoint = Vector2.new(1, 0.5)
+musicClear.Position = UDim2.new(1, -4, 0.5, 0)
+musicClear.Size = UDim2.fromOffset(32, 32)
+musicClear.BackgroundTransparency = 1
+musicClear.Text = "×"
+musicClear.TextColor3 = Theme.Muted
+musicClear.Font = Enum.Font.GothamBold
+musicClear.TextSize = 16
+musicClear.Visible = false
+
+local musicCount = label(musicPage, tostring(#musicList) .. " lagu", 12, Theme.Muted, Enum.Font.Gotham)
+musicCount.Position = UDim2.fromOffset(14, 50)
+musicCount.Size = UDim2.new(1, -28, 0, 16)
+
+local musicScroll = makeScroll(musicPage)
+musicScroll.Position = UDim2.fromOffset(10, 70)
+musicScroll.Size = UDim2.new(1, -20, 1, -78)
+
+local musicRows = {}
+
+local function toggleFav(id)
+    id = tostring(id)
+    if isFav(id) then
+        SavedFavorites[id] = nil
+    else
+        SavedFavorites[id] = true
+    end
+    saveFavorites()
+    paintHeart(id)
+    if renderFavs then
+        renderFavs()
+    end
+end
+
+for _, item in ipairs(musicList) do
+    local titleText = displayName(item)
+    local row = createRow(musicScroll, item.index, string.format("%02d", item.index), titleText, item.id, item.id, function()
+        playId(item.id, titleText)
+    end)
+    local key = string.lower(titleText .. " " .. item.id .. " " .. tostring(item.index))
+    table.insert(musicRows, { frame = row, key = key })
+    local hearts = heartButtons[item.id]
+    local heart = hearts[#hearts]
+    bind(heart.MouseButton1Click, function()
+        toggleFav(item.id)
+    end)
+end
+
+local function applyMusicFilter()
+    local query = string.lower(musicSearch.Text or "")
+    local shown = 0
+    for _, entry in ipairs(musicRows) do
+        local match = query == "" or string.find(entry.key, query, 1, true) ~= nil
+        entry.frame.Visible = match
+        if match then
+            shown = shown + 1
+        end
+    end
+    musicClear.Visible = query ~= ""
+    if query == "" then
+        musicCount.Text = tostring(#musicList) .. " lagu"
+    else
+        musicCount.Text = tostring(shown) .. " hasil"
+    end
+end
+
+bind(musicSearch:GetPropertyChangedSignal("Text"), applyMusicFilter)
+bind(musicClear.MouseButton1Click, function()
+    musicSearch.Text = ""
+end)
+
+-- FAVORIT
+local favPage = pages.Favorit
+local favSearchWrap = Instance.new("Frame")
+favSearchWrap.Parent = favPage
+favSearchWrap.Position = UDim2.fromOffset(10, 8)
+favSearchWrap.Size = UDim2.new(1, -20, 0, 40)
+favSearchWrap.BackgroundColor3 = Theme.Raised
+favSearchWrap.BorderSizePixel = 0
+corner(favSearchWrap, 12)
+
+local favSearch = Instance.new("TextBox")
+favSearch.Parent = favSearchWrap
+favSearch.Position = UDim2.fromOffset(12, 0)
+favSearch.Size = UDim2.new(1, -20, 1, 0)
+favSearch.BackgroundTransparency = 1
+favSearch.Text = ""
+favSearch.PlaceholderText = "Cari favorit"
+favSearch.PlaceholderColor3 = Theme.Muted
+favSearch.TextColor3 = Theme.Text
+favSearch.Font = Enum.Font.Gotham
+favSearch.TextSize = 14
+favSearch.ClearTextOnFocus = false
+favSearch.TextXAlignment = Enum.TextXAlignment.Left
+
+local favCount = label(favPage, "0 favorit", 12, Theme.Muted, Enum.Font.Gotham)
+favCount.Position = UDim2.fromOffset(14, 50)
+favCount.Size = UDim2.new(1, -28, 0, 16)
+
+local favScroll = makeScroll(favPage)
+favScroll.Position = UDim2.fromOffset(10, 70)
+favScroll.Size = UDim2.new(1, -20, 1, -78)
+
+local favEmpty = label(favScroll, "Belum ada favorit. Ketuk hati di tab Musik.", 13, Theme.Muted, Enum.Font.Gotham)
+favEmpty.Name = "Empty"
+favEmpty.Size = UDim2.new(1, 0, 0, 48)
+favEmpty.TextWrapped = true
+favEmpty.TextYAlignment = Enum.TextYAlignment.Top
+
+function renderFavs()
+    for _, child in ipairs(favScroll:GetChildren()) do
+        if child:IsA("Frame") then
+            child:Destroy()
+        end
+    end
+
+    local query = string.lower(favSearch.Text or "")
+    local entries = {}
+    for id, flag in pairs(SavedFavorites) do
+        if flag ~= nil and flag ~= false then
+            local sid = tostring(id)
+            local titleText = nameById[sid] or ("ID " .. sid)
+            local key = string.lower(titleText .. " " .. sid)
+            if query == "" or string.find(key, query, 1, true) then
+                table.insert(entries, { id = sid, title = titleText, key = key })
+            end
+        end
+    end
+    table.sort(entries, function(a, b)
+        return a.title:lower() < b.title:lower()
+    end)
+
+    -- drop destroyed heart buttons
+    for id, list in pairs(heartButtons) do
+        local fresh = {}
+        for _, btn in ipairs(list) do
+            if btn.Parent then
+                table.insert(fresh, btn)
+            end
+        end
+        heartButtons[id] = fresh
+    end
+
+    for order, entry in ipairs(entries) do
+        local row, heart = createRow(favScroll, order, "♥", entry.title, entry.id, entry.id, function()
+            playId(entry.id, entry.title)
+        end)
+        row.Visible = true
+        bind(heart.MouseButton1Click, function()
+            toggleFav(entry.id)
+        end)
+    end
+
+    favEmpty.Visible = #entries == 0
+    if query == "" then
+        local total = 0
+        for id, flag in pairs(SavedFavorites) do
+            if flag ~= nil and flag ~= false then
+                total = total + 1
+            end
+        end
+        favCount.Text = tostring(total) .. " favorit"
+    else
+        favCount.Text = tostring(#entries) .. " hasil"
+    end
+    paintPlaying()
+end
+
+bind(favSearch:GetPropertyChangedSignal("Text"), renderFavs)
+renderFavs()
+
+-- BOARD
+local board = pages.Board
+local boardHolder = Instance.new("Frame")
+boardHolder.Parent = board
+boardHolder.Position = UDim2.fromOffset(12, 12)
+boardHolder.Size = UDim2.new(1, -24, 1, -16)
+boardHolder.BackgroundTransparency = 1
+
+local boardLayout = Instance.new("UIListLayout")
+boardLayout.Parent = boardHolder
+boardLayout.Padding = UDim.new(0, 8)
+boardLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local boardHint = label(boardHolder, "Papan dan kendaraan.", 13, Theme.Muted, Enum.Font.Gotham)
+boardHint.LayoutOrder = 1
+boardHint.Size = UDim2.new(1, 0, 0, 18)
+
+local function actionCard(order, titleText, subtitle, base, ink, callback)
+    local btn = Instance.new("TextButton")
+    btn.Parent = boardHolder
+    btn.LayoutOrder = order
+    btn.Size = UDim2.new(1, 0, 0, 58)
+    btn.BackgroundColor3 = base
+    btn.Text = ""
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    corner(btn, 12)
+
+    local t = label(btn, titleText, 15, ink, Enum.Font.GothamBold)
+    t.Position = UDim2.fromOffset(14, 8)
+    t.Size = UDim2.new(1, -28, 0, 20)
+
+    local s = label(btn, subtitle, 12, base == Theme.Danger and Theme.Text or Theme.Muted, Enum.Font.Gotham)
+    s.Position = UDim2.fromOffset(14, 30)
+    s.Size = UDim2.new(1, -28, 0, 18)
+
+    hoverColor(btn, base, lighten(base, 0.1))
+    bind(btn.MouseButton1Click, callback)
+end
+
+actionCard(2, "SkateBoard", "Papan skate", Theme.Raised, Theme.Text, function()
+    local remote = getRemote()
+    if not remote then
+        return
+    end
+    remote:FireServer("SkateBoard", nil)
+    NowTitle.Text = "SkateBoard"
+    NowId.Text = "Kendaraan dipanggil"
+end)
+
+actionCard(3, "HeavyBoard", "Segway kecil", Theme.Raised, Theme.Text, function()
+    local remote = getRemote()
+    if not remote then
+        return
+    end
+    remote:FireServer("SegwaySmall", nil)
+    NowTitle.Text = "HeavyBoard"
+    NowId.Text = "Kendaraan dipanggil"
+end)
+
+actionCard(4, "Hapus papan", "Lepas kendaraan", Theme.Danger, Theme.Text, function()
+    local remote = getRemote()
+    if not remote then
+        return
+    end
+    remote:FireServer("Delete NoMotorVehicle")
+    NowTitle.Text = "Papan dihapus"
+    NowId.Text = "Delete NoMotorVehicle"
+end)
+
+showTab("Home")
+makeDraggable(Main, Topbar)
+local consumeBubbleDrag = makeDraggable(Bubble, Bubble)
+
+local function minimize()
+    local shrink = TweenService:Create(Main, openInfo, { Size = UDim2.fromOffset(0, 0) })
+    shrink:Play()
+    shrink.Completed:Wait()
+    if not alive then
+        return
+    end
+    Main.Visible = false
+    Bubble.Visible = true
+    TweenService:Create(Bubble, openInfo, { Size = UDim2.fromOffset(58, 58) }):Play()
+end
+
+local function restore()
+    local hide = TweenService:Create(Bubble, openInfo, { Size = UDim2.fromOffset(0, 0) })
+    hide:Play()
+    hide.Completed:Wait()
+    if not alive then
+        return
+    end
+    Bubble.Visible = false
+    Main.Visible = true
+    TweenService:Create(Main, openInfo, { Size = targetSize }):Play()
+end
+
+bind(MinimizeBtn.MouseButton1Click, function()
+    task.spawn(minimize)
+end)
+
+bind(Bubble.MouseButton1Click, function()
+    if consumeBubbleDrag() then
+        return
+    end
+    task.spawn(restore)
+end)
+
+bind(CloseBtn.MouseButton1Click, function()
+    alive = false
+    local fade = TweenService:Create(Main, openInfo, { Size = UDim2.fromOffset(0, 0), BackgroundTransparency = 1 })
+    fade:Play()
+    fade.Completed:Wait()
+    for _, conn in ipairs(connections) do
+        conn:Disconnect()
+    end
+    HanzGui:Destroy()
+    if loadingGui.Parent then
+        loadingGui:Destroy()
+    end
+end)
+
+-- Jangan buka jendela sebelum loading selesai, biar tidak numpuk.
+task.wait(3)
+
+if alive and Main.Parent then
+    TweenService:Create(Main, openInfo, { Size = targetSize }):Play()
+    local fadeInfo = TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    TweenService:Create(loadingBg, fadeInfo, { BackgroundTransparency = 1 }):Play()
+    TweenService:Create(loadingTitle, fadeInfo, { TextTransparency = 1 }):Play()
+    TweenService:Create(loadingSub, fadeInfo, { TextTransparency = 1 }):Play()
+    TweenService:Create(barTrack, fadeInfo, { BackgroundTransparency = 1 }):Play()
+    TweenService:Create(barFill, fadeInfo, { BackgroundTransparency = 1 }):Play()
+    task.delay(0.5, function()
+        if loadingGui.Parent then
+            loadingGui:Destroy()
+        end
+    end)
 end
